@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Portal EREMPAF</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-brand">
+        <img src="logo.png" alt="Logo EREMPAF" class="header-logo">
+        <div class="header-text">
+          <h1 class="header-title">EREMPAF - Escola de Referência do<br>Ensino Médio Professor Antônio Farias</h1>
+          <div class="header-bar"></div>
+          <p class="header-slogan">Educação, compromisso e transformação.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-link active">Início</a>
+      <a href="#" class="nav-link">Cardápio</a>
+      <a href="https://www.siepe.educacao.pe.gov.br/" target="_blank" class="nav-link">Notas</a>
+      <a href="sobre/sobre.html" class="nav-link">Sobre</a>
+      <a href="#" class="nav-link">Contato</a>
+    </div>
+  </nav>
+  <div class="nav-red-line"></div>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="main-inner">
+
+      <!-- CARROSSEL -->
+      <div class="carrossel">
+        <div class="carrossel-track" id="carrosselTrack">
+          <!-- Slides: coloque imagens dentro de .slide -->
+          <div class="slide slide-placeholder">
+            <span class="placeholder-text">Imagem 1</span>
+          </div>
+          <div class="slide slide-placeholder">
+            <span class="placeholder-text">Imagem 2</span>
+          </div>
+          <div class="slide slide-placeholder">
+            <span class="placeholder-text">Imagem 3</span>
+          </div>
+        </div>
+        <button class="carrossel-btn carrossel-prev" onclick="moverCarrossel(-1)">&#8249;</button>
+        <button class="carrossel-btn carrossel-next" onclick="moverCarrossel(1)">&#8250;</button>
+        <div class="carrossel-dots" id="carrosselDots"></div>
+      </div>
+
+      <!-- FORM -->
+      <div class="portal-card">
+        <h2 class="portal-title">Acessar o Portal</h2>
+
+        <div class="select-group">
+          <div class="select-wrap">
+            <select id="serie" onchange="atualizarTurmas()">
+              <option value="">Série</option>
+              <option value="1ano">1º Ano</option>
+              <option value="2ano">2º Ano</option>
+              <option value="3ano">3º Ano</option>
+            </select>
+            <span class="select-arrow">&#8964;</span>
+          </div>
+        </div>
+
+        <div class="select-group">
+          <div class="select-wrap">
+            <select id="turma">
+              <option value="">Turma</option>
+            </select>
+            <span class="select-arrow">&#8964;</span>
+          </div>
+        </div>
+
+        <button class="btn-acessar" onclick="acessar()">Acessar</button>
+        <p id="aviso-erro" class="aviso-erro"></p>
+
+        <div class="portal-footer-bar"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+
+      <div class="footer-col">
+        <h3 class="footer-heading">Endereço</h3>
+        <p class="footer-line"><span class="footer-icon">&#9679;</span> Rua Quintino Bocaiúva - Norte<br>Gravatá – PE, 55641-015</p>
+        <p class="footer-line"><span class="footer-icon">&#9675;</span> Seg–Sex: 7h–17h</p>
+      </div>
+
+      <div class="footer-col">
+        <h3 class="footer-heading">Links Rápidos</h3>
+        <ul class="footer-links">
+          <li><a href="#">&#8250; Início</a></li>
+          <li><a href="https://www.siepe.educacao.pe.gov.br/" target="_blank">&#8250; Notas</a></li>
+          <li><a href="#">&#8250; Cardápio</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-pe">
+        <h3 class="footer-heading">Secretaria de Educação</h3>
+        <div class="pe-brand">
+          <img src="assets/pe-logo.svg" alt="Brasão de Pernambuco" class="pe-logo" onerror="this.style.display='none'">
+          <div class="pe-text">
+            <span class="pe-gov">GOVERNO DO ESTADO</span>
+            <span class="pe-name">PERNAMBUCO</span>
+            <span class="pe-sub">Rede Estadual de Pernambuco</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="footer-bottom">
+      © 2024 EREMPAF - Todos os direitos reservados.
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    // Carrossel
+    let slideAtual = 0;
+    const track = document.getElementById("carrosselTrack");
+    const slides = track.querySelectorAll(".slide");
+    const dotsContainer = document.getElementById("carrosselDots");
+
+    slides.forEach((_, i) => {
+      const dot = document.createElement("button");
+      dot.className = "carrossel-dot" + (i === 0 ? " ativo" : "");
+      dot.onclick = () => irParaSlide(i);
+      dotsContainer.appendChild(dot);
+    });
+
+    function irParaSlide(n) {
+      slideAtual = (n + slides.length) % slides.length;
+      track.style.transform = `translateX(-${slideAtual * 100}%)`;
+      document.querySelectorAll(".carrossel-dot").forEach((d, i) =>
+        d.classList.toggle("ativo", i === slideAtual)
+      );
+    }
+
+    function moverCarrossel(dir) { irParaSlide(slideAtual + dir); }
+
+    setInterval(() => moverCarrossel(1), 5000);
+  </script>
+</body>
+</html>

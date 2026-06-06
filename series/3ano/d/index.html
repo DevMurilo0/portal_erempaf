@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>3º Ano D — EREMPAF</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../../calendario.css">
+</head>
+<body>
+
+<!-- Overlay da sidebar -->
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+<!-- Menu lateral -->
+<nav id="sidebar" class="sidebar">
+  <span class="sidebar-label">Navegação</span>
+  <a href="/index.html">🏠 Início</a>
+  <a href="#">🍽️ Cardápio</a>
+  <a href="https://www.siepe.educacao.pe.gov.br/" target="_blank">📊 Notas (SIEPE)</a>
+
+  <div class="sidebar-divider"></div>
+  <span class="sidebar-label">Informações</span>
+  <a href="/sobre/sobre.html">ℹ️ Sobre o site</a>
+</nav>
+
+<!-- Modal de login -->
+<div id="tela-login" class="login-overlay hidden">
+  <div class="login-box">
+    <div class="login-header">
+      <span class="login-icon">🔐</span>
+      <h2>Acesso Restrito</h2>
+      <p class="login-sub">Entre com as credenciais desta turma</p>
+    </div>
+
+    <div class="input-group">
+      <label for="login-email">Email da turma</label>
+      <input type="email" id="login-email" placeholder="turma@erempaf.com" />
+    </div>
+
+    <div class="input-group">
+      <label for="login-senha">Senha</label>
+      <input type="password" id="login-senha" placeholder="••••••••" />
+    </div>
+
+    <button id="btn-login">Entrar</button>
+    <p class="login-erro" id="login-erro"></p>
+  </div>
+</div>
+
+<!-- Header principal -->
+<header class="topo">
+  <button id="menuBtn" class="menu-btn" title="Menu">☰</button>
+
+  <div>
+    <div class="breadcrumb">EREMPAF / Calendário</div>
+    <h1 id="titulo-turma">3º Ano D</h1>
+  </div>
+
+  <div class="topo-acoes">
+    <button id="btn-login-topo" style="display:none">🔓 Entrar</button>
+    <button id="btn-editar" disabled>✏️ Editar</button>
+    <button id="btn-salvar" hidden>💾 Salvar</button>
+  </div>
+</header>
+
+<!-- Avisos importantes -->
+<section class="avisos">
+  <div class="avisos-header">
+    <h2>📌 Avisos do Mês</h2>
+  </div>
+  <textarea
+    id="campo-avisos"
+    placeholder="Nenhum aviso por enquanto..."
+    disabled
+  ></textarea>
+</section>
+
+<!-- Controle de mês -->
+<div class="controle-mes">
+  <button id="mes-anterior" title="Mês anterior">◀</button>
+  <span id="mes-ano"></span>
+  <button id="mes-proximo" title="Próximo mês">▶</button>
+</div>
+
+<!-- Calendário -->
+<main>
+  <div class="calendario-wrap">
+    <div class="calendario">
+      <div class="cabecalho">
+        <span>Seg</span>
+        <span>Ter</span>
+        <span>Qua</span>
+        <span>Qui</span>
+        <span>Sex</span>
+      </div>
+      <div id="dias" class="dias"></div>
+    </div>
+  </div>
+</main>
+
+<!-- Painel de detalhes do dia (MELHORADO) -->
+<div id="painel-detalhes" class="painel-detalhes hidden">
+  <div class="painel-conteudo">
+
+    <!-- Cabeçalho do painel -->
+    <div class="painel-header">
+      <div class="painel-header-left">
+        <span class="painel-kicker">📅 Detalhes do Dia</span>
+        <h2 id="titulo-detalhes">—</h2>
+        <span class="painel-dia-semana" id="painel-dia-semana"></span>
+      </div>
+      <button class="btn-fechar-painel" id="fechar-detalhes" title="Fechar">✕</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="painel-tabs">
+      <button class="tab-btn active" data-tab="anotacoes">📝 Anotações</button>
+      <button class="tab-btn" data-tab="materias">📚 Matérias</button>
+      <button class="tab-btn" data-tab="info">📊 Info</button>
+    </div>
+
+    <!-- Corpo com scroll -->
+    <div class="painel-body">
+
+      <!-- Tab: Anotações -->
+      <div id="tab-anotacoes" class="tab-content active">
+        <div>
+          <p class="anotacao-label">Anotações do dia</p>
+          <textarea
+            id="campo-detalhes"
+            placeholder="Adicione aqui tarefas, lembretes, atividades, provas ou qualquer informação importante para este dia..."
+            disabled
+          ></textarea>
+        </div>
+        <div id="blocos-materias"></div>
+      </div>
+
+      <!-- Tab: Matérias -->
+      <div id="tab-materias" class="tab-content">
+        <p class="anotacao-label">Marque as matérias com atividade hoje</p>
+        <div class="materias-grid" id="materias-grid"></div>
+      </div>
+
+      <!-- Tab: Info -->
+      <div id="tab-info" class="tab-content">
+        <p class="anotacao-label">Informações do dia</p>
+        <div class="dia-info-stats">
+          <div class="stat-card">
+            <div class="stat-num" id="stat-dias">—</div>
+            <div class="stat-label">Dias até hoje</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num" id="stat-materias">0</div>
+            <div class="stat-label">Matérias marcadas</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer do painel -->
+    <div class="painel-footer">
+      <button class="btn-painel btn-painel-fechar" id="btn-painel-fechar">Fechar</button>
+      <button class="btn-painel btn-painel-salvar" id="btn-painel-salvar" hidden>💾 Salvar</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- Scripts Firebase -->
+<script>
+  const SERIE = "3ano";
+  const TURMA = "d";
+  const SALA_ID = `${SERIE}-${TURMA}`;
+</script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDgMBfsuR66vQiz5hG5F2OkhiTE_H1ZCTk",
+    authDomain: "portal-erempaf.firebaseapp.com",
+    projectId: "portal-erempaf",
+    storageBucket: "portal-erempaf.firebasestorage.app",
+    messagingSenderId: "124907592592",
+    appId: "1:124907592592:web:a9de2e6959a768c7d4b115"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  window.auth = getAuth(app);
+  window.db   = getFirestore(app);
+  window.usuarioLogado = undefined; // undefined = ainda verificando
+
+  onAuthStateChanged(window.auth, (user) => {
+    window.usuarioLogado = user || null;
+
+    const btnLoginTopo = document.getElementById("btn-login-topo");
+    const btnEditar    = document.getElementById("btn-editar");
+
+    if (user) {
+      if (btnLoginTopo) btnLoginTopo.style.display = "none";
+      if (btnEditar) btnEditar.disabled = false;
+      if (window.carregarCalendario) window.carregarCalendario();
+    } else {
+      if (btnLoginTopo) btnLoginTopo.style.display = "inline-flex";
+      if (btnEditar) btnEditar.disabled = true;
+    }
+  });
+</script>
+
+<script type="module" src="../../calendario.js"></script>
+
+</body>
+</html>
