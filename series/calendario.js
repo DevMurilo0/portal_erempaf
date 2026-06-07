@@ -21,8 +21,9 @@ const EMAIL_TURMA = SALA_ID.replace("-", "") + "@erempaf.com";
 
 const MATERIAS = [
   "Português", "Matemática", "História",
-  "Geografia", "Ciências", "Inglês",
-  "Educação Física", "Arte"
+  "Geografia", "Biologia", "Lingua Inglesa",
+  "Educação Física", "Artes", "Filosofia", 
+  "Quimica", "Sociologia", "Fisica"
 ];
 
 let modoEdicao      = false;
