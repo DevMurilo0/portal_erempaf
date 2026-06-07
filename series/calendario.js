@@ -21,9 +21,8 @@ const EMAIL_TURMA = SALA_ID.replace("-", "") + "@erempaf.com";
 
 const MATERIAS = [
   "Português", "Matemática", "História",
-  "Geografia", "Biologia", "Lingua Inglesa",
-  "Educação Física", "Artes", "Fisica", "Filosofia",
-  "Quimica", "Sociologia"
+  "Geografia", "Ciências", "Inglês",
+  "Educação Física", "Arte"
 ];
 
 let modoEdicao      = false;
@@ -75,26 +74,46 @@ function fecharModalLogin() {
   telaLogin.classList.add("hidden");
 }
 
+const STORAGE_KEY = `erempaf_auth_${SALA_ID}`;
+
+function turmaJaAutenticada() {
+  return localStorage.getItem(STORAGE_KEY) === "1";
+}
+
+function marcarTurmaAutenticada() {
+  localStorage.setItem(STORAGE_KEY, "1");
+}
+
 // onAuthStateChanged dispara uma vez ao carregar com o estado real da sessão
-// (incluindo sessão persistida do localStorage pelo Firebase)
 onAuthStateChanged(auth, (user) => {
   window.usuarioLogado = user || null;
 
   if (estaLogadoNaTurma(user)) {
-    // Sessão válida desta turma → entra direto, sem pedir nada
+    // Firebase ainda tem a sessão desta turma ativa
+    marcarTurmaAutenticada();
     fecharModalLogin();
     if (btnLoginTopo) btnLoginTopo.style.display = "none";
     btnEditar.disabled = false;
     if (window.carregarCalendario) window.carregarCalendario();
+  } else if (turmaJaAutenticada()) {
+    // Já autenticou antes nesta turma — faz login silencioso pelo Firebase
+    // O Firebase pode estar com outra sessão, mas o localStorage confirma que
+    // esta turma já foi autenticada. Aguarda o relogin não ser necessário:
+    // basta sinalizar como apto e carregar (modo leitura sem edição até relogar)
+    fecharModalLogin();
+    if (btnLoginTopo) btnLoginTopo.style.display = "none";
+    btnEditar.disabled = false;
+    window.modoSoLeitura = true;
+    if (window.carregarCalendario) window.carregarCalendario();
   } else {
-    // Sem sessão ou sessão de outra turma → pede login
+    // Primeira vez nesta turma → pede login
     if (btnLoginTopo) btnLoginTopo.style.display = "inline-flex";
     btnEditar.disabled = true;
     abrirModalLogin();
   }
 });
 
-// Botão "Entrar" no topo (caso feche o modal e queira logar de novo)
+// Botão "Entrar" no topo
 if (btnLoginTopo) {
   btnLoginTopo.addEventListener("click", abrirModalLogin);
 }
@@ -115,12 +134,13 @@ btnLoginForm.addEventListener("click", async () => {
     window.usuarioLogado = cred.user;
 
     if (estaLogadoNaTurma(cred.user)) {
+      marcarTurmaAutenticada();
+      window.modoSoLeitura = false;
       fecharModalLogin();
       btnEditar.disabled = false;
       mostrarToast("✅ Login realizado!", "success");
       await carregarCalendario();
     } else {
-      // Logou, mas com email de outra turma
       erroLogin.textContent = "Esse email não pertence a esta turma.";
       await auth.signOut();
     }
@@ -150,7 +170,13 @@ async function verificarSenhaEdicao(senhaDigitada) {
 
 btnEditar.addEventListener("click", async () => {
   if (!estaLogadoNaTurma(window.usuarioLogado)) {
-    abrirModalLogin();
+    // Se está em modo só leitura, precisa relogar para editar
+    if (window.modoSoLeitura) {
+      mostrarToast("🔑 Entre com suas credenciais para editar", "info");
+      abrirModalLogin();
+    } else {
+      abrirModalLogin();
+    }
     return;
   }
 

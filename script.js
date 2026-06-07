@@ -1,8 +1,8 @@
 // Turmas disponíveis por série
 const turmasPorSerie = {
-  "1ano": ["a","b","c","d","e","f"],
+  "1ano": ["a","b","c","d","e"],
   "2ano": ["a","b","c","d","e"],
-  "3ano": ["a","b","c","d","e","f"]
+  "3ano": ["a","b","c","d"]
 };
 
 function atualizarTurmas() {
