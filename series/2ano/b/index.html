@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>2º Ano B — EREMPAF</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="../../../calendario.css">
+  <link rel="stylesheet" href="../../calendario.css">
   <!-- TEMA TURMA B -->
   <style>
   :root {
@@ -137,6 +137,7 @@
     <div class="painel-tabs">
       <button class="tab-btn active" data-tab="anotacoes">📝 Anotações</button>
       <button class="tab-btn" data-tab="materias">📚 Matérias</button>
+      <button class="tab-btn" data-tab="fotos">📷 Fotos</button>
       <button class="tab-btn" data-tab="info">📊 Info</button>
     </div>
 
@@ -162,6 +163,9 @@
         <div class="materias-grid" id="materias-grid"></div>
       </div>
 
+      <!-- Tab: Fotos -->
+      <div id="tab-fotos" class="tab-content"></div>
+
       <!-- Tab: Info -->
       <div id="tab-info" class="tab-content">
         <p class="anotacao-label">Informações do dia</p>
@@ -185,6 +189,27 @@
       <button class="btn-painel btn-painel-salvar" id="btn-painel-salvar" hidden>💾 Salvar</button>
     </div>
 
+  </div>
+</div>
+
+
+<!-- Modal senha de edição -->
+<div id="modal-senha-edicao" class="login-overlay hidden">
+  <div class="login-box">
+    <div class="login-header">
+      <span class="login-icon">✏️</span>
+      <h2>Modo Edição</h2>
+      <p class="login-sub">Digite a senha para editar esta turma</p>
+    </div>
+    <div class="input-group">
+      <label for="senha-edicao-input">Senha</label>
+      <input type="password" id="senha-edicao-input" placeholder="••••••••" />
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button id="btn-cancelar-senha-edicao" style="flex:1;padding:12px;background:transparent;border:1px solid var(--border-lg);color:var(--text-secondary);border-radius:var(--radius-md);cursor:pointer;font-family:var(--font-main);font-size:14px;">Cancelar</button>
+      <button id="btn-confirmar-senha-edicao" style="flex:2;padding:12px;background:var(--red-main);border:none;color:white;border-radius:var(--radius-md);cursor:pointer;font-family:var(--font-main);font-size:14px;font-weight:700;">Entrar</button>
+    </div>
+    <p class="login-erro" id="senha-edicao-erro"></p>
   </div>
 </div>
 

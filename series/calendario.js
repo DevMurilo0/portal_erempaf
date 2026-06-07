@@ -22,7 +22,7 @@ const EMAIL_TURMA = SALA_ID.replace("-", "") + "@erempaf.com";
 const MATERIAS = [
   "Português", "Matemática", "História",
   "Geografia", "Biologia", "Lingua Inglesa",
-  "Educação Física", "Artes", "Filosofia", 
+  "Educação Física", "Artes", "Filosofia",
   "Quimica", "Sociologia", "Fisica"
 ];
 
@@ -30,6 +30,7 @@ let modoEdicao      = false;
 let diaDetalheAtual = null;
 let estadoMaterias  = {};
 let estadoDetalhes  = {};
+let estadoFotos     = {}; // { "2026-06-10": ["base64...", "base64..."] }
 let tabAtiva        = "anotacoes";
 let dataAtual       = new Date();
 
@@ -169,29 +170,53 @@ async function verificarSenhaEdicao(senhaDigitada) {
   return senhaDigitada === snap.data().senha;
 }
 
-btnEditar.addEventListener("click", async () => {
-  if (!estaLogadoNaTurma(window.usuarioLogado)) {
-    // Se está em modo só leitura, precisa relogar para editar
-    if (window.modoSoLeitura) {
-      mostrarToast("🔑 Entre com suas credenciais para editar", "info");
-      abrirModalLogin();
-    } else {
-      abrirModalLogin();
-    }
-    return;
-  }
+function abrirModalSenhaEdicao() {
+  const modal = document.getElementById("modal-senha-edicao");
+  const input = document.getElementById("senha-edicao-input");
+  const erro  = document.getElementById("senha-edicao-erro");
+  if (input) input.value = "";
+  if (erro)  erro.textContent = "";
+  modal.classList.remove("hidden");
+  setTimeout(() => input?.focus(), 100);
+}
 
-  const senha = prompt("🔑 Digite a senha de edição:");
-  if (senha === null) return;
+function fecharModalSenhaEdicao() {
+  document.getElementById("modal-senha-edicao").classList.add("hidden");
+}
+
+document.getElementById("btn-confirmar-senha-edicao")?.addEventListener("click", async () => {
+  const input = document.getElementById("senha-edicao-input");
+  const erro  = document.getElementById("senha-edicao-erro");
+  const senha = input.value;
+
+  if (!senha) { erro.textContent = "Digite a senha."; return; }
 
   const ok = await verificarSenhaEdicao(senha);
   if (ok) {
+    fecharModalSenhaEdicao();
     modoEdicao = true;
     atualizarModoEdicao();
     mostrarToast("✏️ Modo edição ativado", "info");
   } else {
-    mostrarToast("❌ Senha incorreta", "error");
+    erro.textContent = "Senha incorreta.";
+    input.value = "";
+    input.focus();
   }
+});
+
+document.getElementById("btn-cancelar-senha-edicao")?.addEventListener("click", fecharModalSenhaEdicao);
+
+document.getElementById("senha-edicao-input")?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") document.getElementById("btn-confirmar-senha-edicao")?.click();
+  if (e.key === "Escape") fecharModalSenhaEdicao();
+});
+
+btnEditar.addEventListener("click", async () => {
+  if (!estaLogadoNaTurma(window.usuarioLogado) && !window.modoSoLeitura) {
+    abrirModalLogin();
+    return;
+  }
+  abrirModalSenhaEdicao();
 });
 
 btnSalvar.addEventListener("click", async () => {
@@ -215,6 +240,9 @@ function atualizarModoEdicao() {
 
   const btnPainelSalvar = document.getElementById("btn-painel-salvar");
   if (btnPainelSalvar) btnPainelSalvar.hidden = !modoEdicao;
+
+  // Atualiza aba fotos para mostrar/ocultar botão de upload
+  if (diaDetalheAtual) renderizarFotos(diaDetalheAtual);
 }
 
 /* ──────────────────────────────────────────────
@@ -325,6 +353,7 @@ function abrirPainel(diaISO) {
   campoDetalhes.disabled = !modoEdicao;
 
   renderizarMaterias(diaISO);
+  renderizarFotos(diaISO);
   ativarTab("anotacoes");
   atualizarStats(diaISO);
 
@@ -463,8 +492,211 @@ function fecharPainel() {
 }
 
 /* ──────────────────────────────────────────────
-   CHIPS NOS DIAS DO CALENDÁRIO
+   FOTOS DO QUADRO
+   estadoFotos: { "2026-06-10": [{img: "base64", desc: "texto"}, ...] }
 ────────────────────────────────────────────── */
+function renderizarFotos(diaISO) {
+  const container = document.getElementById("tab-fotos");
+  if (!container) return;
+
+  const fotos = estadoFotos[diaISO] || [];
+
+  const uploadHTML = modoEdicao ? `
+    <label class="btn-upload-foto">
+      <input type="file" id="input-foto" accept="image/*" multiple style="display:none">
+      + Adicionar foto do quadro
+    </label>
+  ` : "";
+
+  const galeriaHTML = fotos.length > 0
+    ? `<div class="fotos-galeria">
+        ${fotos.map((foto, i) => `
+          <div class="foto-item">
+            <img src="${foto.img}" onclick="abrirFotoGrande('${diaISO}', ${i})" title="${foto.desc}">
+            ${foto.desc ? `<div class="foto-desc-badge">${foto.desc}</div>` : ""}
+            ${modoEdicao ? `<button class="btn-remover-foto" onclick="removerFoto('${diaISO}', ${i})">✕</button>` : ""}
+          </div>
+        `).join("")}
+       </div>`
+    : `<p class="fotos-vazio">${modoEdicao ? "Nenhuma foto ainda. Adicione fotos do quadro." : "Nenhuma foto registrada neste dia."}</p>`;
+
+  container.innerHTML = `
+    <p class="anotacao-label">Fotos do quadro</p>
+    ${uploadHTML}
+    ${galeriaHTML}
+  `;
+
+  const inputFoto = document.getElementById("input-foto");
+  if (inputFoto) {
+    inputFoto.addEventListener("change", (e) => iniciarUploadFotos(diaISO, e.target.files));
+  }
+}
+
+// Fila de fotos aguardando descrição
+let _filaPendente = [];
+let _diaUpload    = null;
+
+async function iniciarUploadFotos(diaISO, files) {
+  if (!files.length) return;
+  _diaUpload = diaISO;
+  _filaPendente = Array.from(files);
+  processarProximaFoto();
+}
+
+async function processarProximaFoto() {
+  if (!_filaPendente.length) return;
+
+  if (!estadoFotos[_diaUpload]) estadoFotos[_diaUpload] = [];
+  if (estadoFotos[_diaUpload].length >= 6) {
+    mostrarToast("⚠️ Limite de 6 fotos por dia", "error");
+    _filaPendente = [];
+    return;
+  }
+
+  const file = _filaPendente.shift();
+  mostrarToast("⏳ Comprimindo foto...", "info");
+  const b64 = await comprimirImagem(file, 900, 0.72);
+
+  // Abre modal de descrição com a foto comprimida
+  abrirModalDescFoto(b64);
+}
+
+function abrirModalDescFoto(b64) {
+  // Cria modal se não existir
+  let modal = document.getElementById("modal-desc-foto");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "modal-desc-foto";
+    modal.className = "login-overlay hidden";
+    modal.innerHTML = `
+      <div class="login-box modal-desc-box">
+        <div class="login-header">
+          <h2>Descrição da foto</h2>
+          <p class="login-sub">Descreva o que está na foto (obrigatório)</p>
+        </div>
+        <img id="modal-desc-preview" style="width:100%;border-radius:8px;margin-bottom:12px;max-height:200px;object-fit:cover;">
+        <div class="input-group">
+          <label for="modal-desc-input">Descrição</label>
+          <input type="text" id="modal-desc-input" placeholder="Ex: Matéria de Matemática - pág 42" maxlength="120">
+        </div>
+        <p class="login-erro" id="modal-desc-erro"></p>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <button id="btn-desc-cancelar" style="flex:1;padding:12px;background:transparent;border:1px solid var(--border-lg);color:var(--text-secondary);border-radius:var(--radius-md);cursor:pointer;font-family:var(--font-main);font-size:14px;">Cancelar</button>
+          <button id="btn-desc-confirmar" style="flex:2;padding:12px;background:var(--red-main);border:none;color:white;border-radius:var(--radius-md);cursor:pointer;font-family:var(--font-main);font-size:14px;font-weight:700;">Adicionar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById("btn-desc-confirmar").addEventListener("click", confirmarDescFoto);
+    document.getElementById("btn-desc-cancelar").addEventListener("click", () => {
+      fecharModalDescFoto();
+      _filaPendente = []; // cancela fila
+    });
+    document.getElementById("modal-desc-input").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") confirmarDescFoto();
+    });
+  }
+
+  document.getElementById("modal-desc-preview").src = b64;
+  document.getElementById("modal-desc-input").value = "";
+  document.getElementById("modal-desc-erro").textContent = "";
+  modal._b64pendente = b64;
+  modal.classList.remove("hidden");
+  setTimeout(() => document.getElementById("modal-desc-input")?.focus(), 100);
+}
+
+function confirmarDescFoto() {
+  const modal = document.getElementById("modal-desc-foto");
+  const input = document.getElementById("modal-desc-input");
+  const erro  = document.getElementById("modal-desc-erro");
+  const desc  = input.value.trim();
+
+  if (!desc) {
+    erro.textContent = "A descrição é obrigatória.";
+    input.focus();
+    return;
+  }
+
+  if (!estadoFotos[_diaUpload]) estadoFotos[_diaUpload] = [];
+  estadoFotos[_diaUpload].push({ img: modal._b64pendente, desc });
+
+  fecharModalDescFoto();
+  renderizarFotos(_diaUpload);
+  mostrarToast("✅ Foto adicionada! Salve para guardar.", "success");
+
+  // Processa próxima foto da fila
+  if (_filaPendente.length > 0) processarProximaFoto();
+}
+
+function fecharModalDescFoto() {
+  document.getElementById("modal-desc-foto")?.classList.add("hidden");
+}
+
+function comprimirImagem(file, maxWidth, quality) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height, 1);
+        canvas.width  = img.width  * ratio;
+        canvas.height = img.height * ratio;
+        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+window.removerFoto = function(diaISO, idx) {
+  if (!estadoFotos[diaISO]) return;
+  estadoFotos[diaISO].splice(idx, 1);
+  renderizarFotos(diaISO);
+  mostrarToast("🗑️ Foto removida. Salve para confirmar.", "info");
+};
+
+window.abrirFotoGrande = function(diaISO, idx) {
+  const fotos = estadoFotos[diaISO] || [];
+  if (!fotos[idx]) return;
+
+  const overlay = document.createElement("div");
+  overlay.className = "lightbox-overlay";
+  overlay.innerHTML = `
+    <div class="lightbox-inner">
+      <button class="lightbox-fechar" onclick="this.closest('.lightbox-overlay').remove()">✕</button>
+      <button class="lightbox-nav lightbox-prev" onclick="lightboxNav(${idx - 1}, '${diaISO}')">‹</button>
+      <div class="lightbox-foto-wrap">
+        <img src="${fotos[idx].img}" class="lightbox-img" id="lightbox-img">
+        ${fotos[idx].desc ? `<p class="lightbox-desc" id="lightbox-desc">${fotos[idx].desc}</p>` : ""}
+      </div>
+      <button class="lightbox-nav lightbox-next" onclick="lightboxNav(${idx + 1}, '${diaISO}')">›</button>
+      <span class="lightbox-counter" id="lightbox-counter">${idx + 1} / ${fotos.length}</span>
+    </div>
+  `;
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+};
+
+window.lightboxNav = function(idx, diaISO) {
+  const fotos = estadoFotos[diaISO] || [];
+  const total = fotos.length;
+  if (total === 0) return;
+  idx = (idx + total) % total;
+  const overlay = document.querySelector(".lightbox-overlay");
+  if (!overlay) return;
+  overlay.querySelector(".lightbox-img").src = fotos[idx].img;
+  overlay.querySelector("#lightbox-counter").textContent = `${idx + 1} / ${total}`;
+
+  const descEl = overlay.querySelector(".lightbox-desc");
+  if (descEl) descEl.textContent = fotos[idx].desc || "";
+
+  overlay.querySelector(".lightbox-prev").setAttribute("onclick", `lightboxNav(${idx - 1}, '${diaISO}')`);
+  overlay.querySelector(".lightbox-next").setAttribute("onclick", `lightboxNav(${idx + 1}, '${diaISO}')`);
+};
 function atualizarChipsDia(diaISO) {
   const diaEl = diasContainer.querySelector(`[data-dia="${diaISO}"]`)?.closest(".dia");
   if (!diaEl) return;
@@ -488,7 +720,7 @@ const mesAnoKey = () =>
   `${dataAtual.getFullYear()}-${String(dataAtual.getMonth() + 1).padStart(2, "0")}`;
 
 async function salvarCalendario() {
-  if (!estaLogadoNaTurma(window.usuarioLogado)) {
+  if (!estaLogadoNaTurma(window.usuarioLogado) && !turmaJaAutenticada()) {
     mostrarToast("⚠️ Faça login para salvar", "error");
     return;
   }
@@ -514,6 +746,13 @@ async function salvarCalendario() {
     }
   });
 
+  dados.fotos = {};
+  Object.entries(estadoFotos).forEach(([k, v]) => {
+    if (k.startsWith(mesAno.slice(0, 7))) {
+      dados.fotos[k] = v.length ? v : deleteField();
+    }
+  });
+
   await setDoc(
     doc(window.db, "salas", SALA_ID, "calendario", mesAno),
     dados,
@@ -529,6 +768,7 @@ async function carregarCalendario() {
   campoAvisos.value = "";
   estadoDetalhes    = {};
   estadoMaterias    = {};
+  estadoFotos       = {};
 
   if (!snap.exists()) return;
   const dados = snap.data();
@@ -543,6 +783,7 @@ async function carregarCalendario() {
 
   if (dados.detalhes) Object.assign(estadoDetalhes, dados.detalhes);
   if (dados.materias) Object.assign(estadoMaterias, dados.materias);
+  if (dados.fotos)    Object.assign(estadoFotos, dados.fotos);
 
   // Atualiza chips em todos os dias com matérias
   Object.keys(estadoMaterias).forEach(diaISO => atualizarChipsDia(diaISO));
