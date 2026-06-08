@@ -659,44 +659,190 @@ window.removerFoto = function(diaISO, idx) {
   mostrarToast("🗑️ Foto removida. Salve para confirmar.", "info");
 };
 
-window.abrirFotoGrande = function(diaISO, idx) {
+window.abrirFotoGrande = function(diaISO, startIdx) {
   const fotos = estadoFotos[diaISO] || [];
-  if (!fotos[idx]) return;
+  if (!fotos.length) return;
+
+  let idx = startIdx;
+  let modoFoco = false;
+
+  // Estado do zoom
+  let scale = 1, lastScale = 1;
+  let originX = 0, originY = 0;
+  let isPinching = false;
+  let isDragging = false;
+  let dragStart = { x: 0, y: 0 };
+  let translateX = 0, translateY = 0;
+
+  function resetZoom() {
+    scale = 1; lastScale = 1;
+    translateX = 0; translateY = 0;
+    const img = document.getElementById("lb-img");
+    if (img) img.style.transform = "";
+  }
+
+  function applyTransform() {
+    const img = document.getElementById("lb-img");
+    if (img) img.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+  }
+
+  function toggleFoco() {
+    modoFoco = !modoFoco;
+    overlay.classList.toggle("modo-foco", modoFoco);
+    const btn = document.getElementById("lb-foco");
+    if (btn) btn.textContent = modoFoco ? "⊞" : "⊡";
+  }
 
   const overlay = document.createElement("div");
   overlay.className = "lightbox-overlay";
-  overlay.innerHTML = `
-    <div class="lightbox-inner">
-      <button class="lightbox-fechar" onclick="this.closest('.lightbox-overlay').remove()">✕</button>
-      <button class="lightbox-nav lightbox-prev" onclick="lightboxNav(${idx - 1}, '${diaISO}')">‹</button>
-      <div class="lightbox-foto-wrap">
-        <img src="${fotos[idx].img}" class="lightbox-img" id="lightbox-img">
-        ${fotos[idx].desc ? `<p class="lightbox-desc" id="lightbox-desc">${fotos[idx].desc}</p>` : ""}
+  overlay.id = "lightbox-overlay";
+
+  function buildHTML() {
+    const foto = fotos[idx];
+    const total = fotos.length;
+    overlay.innerHTML = `
+      <div class="lightbox-topbar">
+        <div class="lightbox-topbar-left">
+          <span class="lightbox-counter">${idx + 1} / ${total}</span>
+        </div>
+        <div class="lightbox-topbar-right">
+          <button class="lightbox-btn foco" id="lb-foco" title="Modo foco">⊡</button>
+          <button class="lightbox-btn download" id="lb-download" title="Baixar imagem">⬇</button>
+          <button class="lightbox-btn fechar" id="lb-fechar" title="Fechar">✕</button>
+        </div>
       </div>
-      <button class="lightbox-nav lightbox-next" onclick="lightboxNav(${idx + 1}, '${diaISO}')">›</button>
-      <span class="lightbox-counter" id="lightbox-counter">${idx + 1} / ${fotos.length}</span>
-    </div>
-  `;
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
+      <div class="lightbox-stage" id="lb-stage">
+        <button class="lightbox-nav lb-prev${total <= 1 ? ' hidden-nav' : ''}" id="lb-prev">‹</button>
+        <img src="${foto.img}" class="lightbox-img" id="lb-img" draggable="false">
+        <button class="lightbox-nav lb-next${total <= 1 ? ' hidden-nav' : ''}" id="lb-next">›</button>
+      </div>
+      <div class="lightbox-bottombar" id="lb-bottombar" style="${foto.desc ? '' : 'display:none'}">
+        <p class="lightbox-desc" id="lb-desc">${foto.desc || ''}</p>
+      </div>
+    `;
+  }
+
+  function atualizar(novoIdx) {
+    const total = fotos.length;
+    idx = (novoIdx + total) % total;
+    resetZoom();
+    const f = fotos[idx];
+    const img = document.getElementById("lb-img");
+    if (img) {
+      img.style.opacity = "0";
+      setTimeout(() => { img.src = f.img; img.style.opacity = "1"; }, 150);
+    }
+    const counter = overlay.querySelector(".lightbox-counter");
+    if (counter) counter.textContent = `${idx + 1} / ${total}`;
+    const desc = document.getElementById("lb-desc");
+    const bar  = document.getElementById("lb-bottombar");
+    if (desc) desc.textContent = f.desc || "";
+    if (bar) bar.style.display = f.desc ? "" : "none";
+  }
+
+  buildHTML();
   document.body.appendChild(overlay);
+
+  // Botões
+  overlay.querySelector("#lb-fechar").addEventListener("click", () => overlay.remove());
+  overlay.querySelector("#lb-foco").addEventListener("click", toggleFoco);
+  overlay.querySelector("#lb-prev")?.addEventListener("click", (e) => { e.stopPropagation(); if (scale === 1) atualizar(idx - 1); });
+  overlay.querySelector("#lb-next")?.addEventListener("click", (e) => { e.stopPropagation(); if (scale === 1) atualizar(idx + 1); });
+
+  // Clique na imagem: se zoom normal → toggle foco; se com zoom → nada
+  overlay.querySelector("#lb-img").addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (scale === 1) toggleFoco();
+  });
+
+  // Download
+  overlay.querySelector("#lb-download").addEventListener("click", () => {
+    const foto = fotos[idx];
+    const a = document.createElement("a");
+    a.href = foto.img;
+    a.download = foto.desc ? `${foto.desc}.jpg` : `foto-${idx + 1}.jpg`;
+    a.click();
+  });
+
+  // Teclado (sem F)
+  function onKey(e) {
+    if (e.key === "ArrowLeft")  { if (scale === 1) atualizar(idx - 1); }
+    if (e.key === "ArrowRight") { if (scale === 1) atualizar(idx + 1); }
+    if (e.key === "Escape")     { overlay.remove(); document.removeEventListener("keydown", onKey); }
+  }
+  document.addEventListener("keydown", onKey);
+
+  // ── TOUCH: Swipe + Pinch zoom (estilo WhatsApp) ──
+  const stage = overlay.querySelector("#lb-stage");
+  let touch1 = null, touch2 = null;
+  let pinchStartDist = 0;
+  let pinchStartScale = 1;
+  let swipeStartX = null;
+
+  stage.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 1) {
+      touch1 = e.touches[0];
+      swipeStartX = touch1.clientX;
+      isPinching = false;
+    } else if (e.touches.length === 2) {
+      isPinching = true;
+      swipeStartX = null;
+      touch1 = e.touches[0];
+      touch2 = e.touches[1];
+      pinchStartDist = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+      pinchStartScale = scale;
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  stage.addEventListener("touchmove", (e) => {
+    if (e.touches.length === 2 && isPinching) {
+      e.preventDefault();
+      const t1 = e.touches[0], t2 = e.touches[1];
+      const dist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
+      scale = Math.min(Math.max(pinchStartScale * (dist / pinchStartDist), 1), 5);
+      applyTransform();
+    } else if (e.touches.length === 1 && scale > 1 && !isPinching) {
+      e.preventDefault();
+      const dx = e.touches[0].clientX - touch1.clientX;
+      const dy = e.touches[0].clientY - touch1.clientY;
+      translateX += dx;
+      translateY += dy;
+      touch1 = e.touches[0];
+      applyTransform();
+    }
+  }, { passive: false });
+
+  stage.addEventListener("touchend", (e) => {
+    if (isPinching && e.touches.length < 2) {
+      isPinching = false;
+      lastScale = scale;
+      if (scale <= 1.05) resetZoom();
+      return;
+    }
+    if (!isPinching && swipeStartX !== null && scale === 1) {
+      const diff = e.changedTouches[0].clientX - swipeStartX;
+      if (Math.abs(diff) > 50) atualizar(diff < 0 ? idx + 1 : idx - 1);
+    }
+    swipeStartX = null;
+  });
+
+  // Duplo toque: zoom rápido (estilo WhatsApp)
+  let lastTap = 0;
+  stage.addEventListener("touchend", (e) => {
+    if (e.touches.length > 0) return;
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      if (scale > 1) { resetZoom(); applyTransform(); }
+      else { scale = 2.5; applyTransform(); }
+    }
+    lastTap = now;
+  });
+
+  // Clique no fundo fecha
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
 };
 
-window.lightboxNav = function(idx, diaISO) {
-  const fotos = estadoFotos[diaISO] || [];
-  const total = fotos.length;
-  if (total === 0) return;
-  idx = (idx + total) % total;
-  const overlay = document.querySelector(".lightbox-overlay");
-  if (!overlay) return;
-  overlay.querySelector(".lightbox-img").src = fotos[idx].img;
-  overlay.querySelector("#lightbox-counter").textContent = `${idx + 1} / ${total}`;
-
-  const descEl = overlay.querySelector(".lightbox-desc");
-  if (descEl) descEl.textContent = fotos[idx].desc || "";
-
-  overlay.querySelector(".lightbox-prev").setAttribute("onclick", `lightboxNav(${idx - 1}, '${diaISO}')`);
-  overlay.querySelector(".lightbox-next").setAttribute("onclick", `lightboxNav(${idx + 1}, '${diaISO}')`);
-};
 function atualizarChipsDia(diaISO) {
   const diaEl = diasContainer.querySelector(`[data-dia="${diaISO}"]`)?.closest(".dia");
   if (!diaEl) return;

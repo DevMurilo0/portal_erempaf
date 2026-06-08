@@ -1139,77 +1139,173 @@ main { padding: 0 20px; }
 .foto-item:hover .btn-remover-foto { opacity: 1; }
 
 /* ── LIGHTBOX ── */
+/* ══════════════════════════════════════════════
+   LIGHTBOX — TELA CHEIA
+══════════════════════════════════════════════ */
 .lightbox-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.92);
+  background: #000;
   z-index: 9999;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
-.lightbox-inner {
-  position: relative;
-  max-width: 92vw;
-  max-height: 90vh;
+/* Barra superior com ações */
+.lightbox-topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.75), transparent);
+  z-index: 2;
+  transition: opacity 0.3s;
 }
 
-.lightbox-img {
-  max-width: 80vw;
-  max-height: 85vh;
-  object-fit: contain;
-  border-radius: var(--radius-md);
-  box-shadow: 0 0 60px rgba(0,0,0,0.8);
+.lightbox-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.lightbox-fechar {
-  position: absolute;
-  top: -40px;
-  right: 0;
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.15s;
+.lightbox-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.lightbox-fechar:hover { opacity: 1; }
+.lightbox-counter {
+  color: rgba(255,255,255,0.75);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
 
-.lightbox-nav {
+/* Botões da barra */
+.lightbox-btn {
   background: rgba(255,255,255,0.12);
   border: none;
   color: white;
-  font-size: 32px;
-  width: 44px;
-  height: 64px;
-  border-radius: var(--radius-sm);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: background 0.15s;
   flex-shrink: 0;
+  backdrop-filter: blur(4px);
+}
+.lightbox-btn:hover { background: rgba(255,255,255,0.25); }
+.lightbox-btn.download { font-size: 16px; }
+.lightbox-btn.foco     { font-size: 15px; }
+.lightbox-btn.fechar   { font-size: 20px; }
+
+/* Área central da imagem */
+.lightbox-stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  touch-action: none;
 }
 
-.lightbox-nav:hover { background: rgba(255,255,255,0.25); }
+.lightbox-img {
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+  transition: opacity 0.2s;
+  touch-action: none;
+  transform-origin: center center;
+}
 
-.lightbox-counter {
+.lightbox-stage {
+  touch-action: none;
+}
+
+/* Setas dentro da imagem */
+.lightbox-nav {
   position: absolute;
-  bottom: -28px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: rgba(255,255,255,0.6);
-  font-size: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0,0,0,0.45);
+  border: none;
+  color: white;
+  font-size: 28px;
+  width: 48px;
+  height: 72px;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+  backdrop-filter: blur(4px);
+  flex-shrink: 0;
+}
+.lightbox-nav:hover  { background: rgba(0,0,0,0.70); }
+.lightbox-nav.lb-prev { left: 12px; }
+.lightbox-nav.lb-next { right: 12px; }
+.lightbox-nav.hidden-nav { opacity: 0; pointer-events: none; }
+
+/* Barra inferior com descrição */
+.lightbox-bottombar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px 20px 16px;
+  background: linear-gradient(to top, rgba(0,0,0,0.80), transparent);
+  z-index: 2;
+  transition: opacity 0.3s;
+}
+
+.lightbox-desc {
+  color: rgba(255,255,255,0.90);
+  font-size: 14px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* Modo foco: oculta barras */
+.lightbox-overlay.modo-foco .lightbox-topbar,
+.lightbox-overlay.modo-foco .lightbox-bottombar {
+  opacity: 0;
+  pointer-events: none;
+}
+.lightbox-overlay.modo-foco .lightbox-nav {
+  opacity: 0;
+  pointer-events: none;
+}
+.lightbox-overlay.modo-foco:hover .lightbox-nav {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 @media (max-width: 480px) {
   .fotos-galeria { grid-template-columns: repeat(2, 1fr); }
+  .lightbox-nav  { width: 40px; height: 60px; font-size: 24px; }
+  .lightbox-nav.lb-prev { left: 6px; }
+  .lightbox-nav.lb-next { right: 6px; }
 }
 
-/* ── FOTO DESCRIÇÃO ── */
+/* ── FOTO DESCRIÇÃO na galeria ── */
 .foto-desc-badge {
   position: absolute;
   bottom: 0;
@@ -1223,23 +1319,6 @@ main { padding: 0 20px; }
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.lightbox-foto-wrap {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.lightbox-desc {
-  color: rgba(255,255,255,0.85);
-  font-size: 14px;
-  text-align: center;
-  max-width: 80vw;
-  background: rgba(0,0,0,0.5);
-  padding: 8px 16px;
-  border-radius: 20px;
 }
 
 .modal-desc-box {
