@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cardápio — EREMPAF</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="cardapio.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-brand">
+        <img src="../logo.png" alt="Logo EREMPAF" class="header-logo">
+        <div class="header-text">
+          <h1 class="header-title">EREMPAF - Escola de Referência do<br>Ensino Médio Professor Antônio Farias</h1>
+          <div class="header-bar"></div>
+          <p class="header-slogan">Educação, compromisso e transformação.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-link">Início</a>
+      <a href="index.html"   class="nav-link active">Cardápio</a>
+      <a href="https://www.siepe.educacao.pe.gov.br/" target="_blank" class="nav-link">Notas</a>
+      <a href="../sobre/sobre.html" class="nav-link">Sobre</a>
+      <a href="#" class="nav-link">Contato</a>
+    </div>
+  </nav>
+  <div class="nav-red-line"></div>
+
+  <!-- HERO DA PÁGINA -->
+  <div class="page-hero">
+    <div class="page-hero-inner">
+      <div class="page-hero-text">
+        <h2 class="page-hero-title">🍽️ Cardápio Escolar</h2>
+        <p class="page-hero-sub">Acompanhe as refeições da semana servidas na escola</p>
+      </div>
+      <button class="btn-editar-cardapio" id="btn-editar">✏️ Editar Cardápio</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="main-inner">
+
+      <!-- Título da semana (somente exibição, sem navegação) -->
+      <div class="semana-nav" style="justify-content:center;">
+        <div class="semana-info">
+          <span class="semana-label" id="semana-label">Carregando...</span>
+        </div>
+      </div>
+
+      <!-- Grade dos dias -->
+      <div class="dias-grid" id="dias-grid">
+        <!-- Preenchido pelo JS -->
+      </div>
+
+      <!-- Legenda -->
+      <div class="legenda">
+        <div class="legenda-item"><span class="leg-dot leg-verde"></span> Cardápio normal</div>
+        <div class="legenda-item"><span class="leg-dot leg-amarelo"></span> Sujeito a alteração</div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ── MODAL: SENHA ── -->
+  <div id="modal-senha" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-icon-wrap">🔐</div>
+      <h2 class="modal-titulo">Acesso à Edição</h2>
+      <p class="modal-sub">Digite a senha para editar o cardápio</p>
+      <div class="input-group">
+        <label for="inp-senha">Senha</label>
+        <input type="password" id="inp-senha" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <p class="modal-erro" id="erro-senha"></p>
+      <div class="modal-actions">
+        <button class="btn-cancelar" id="btn-cancelar-senha">Cancelar</button>
+        <button class="btn-primary"  id="btn-ok-senha">Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL: EDITAR DIA ── -->
+  <div id="modal-edicao" class="modal-overlay hidden">
+    <div class="modal-box modal-box-lg">
+      <div class="modal-icon-wrap">✏️</div>
+      <h2 class="modal-titulo" id="modal-edicao-titulo">Editar dia</h2>
+      <p class="modal-sub" id="modal-edicao-data"></p>
+
+      <div class="input-group">
+        <label>Status do dia</label>
+        <div class="status-btns">
+          <button class="status-btn ativo" data-s="normal">✅ Normal</button>
+          <button class="status-btn"       data-s="alterado">⚠️ Sujeito a alteração</button>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="inp-lanche-manha">🥐 Lanche da manhã</label>
+        <textarea id="inp-lanche-manha" rows="2" placeholder="Ex: Achocolatado, pão com manteiga..."></textarea>
+      </div>
+
+      <div class="input-group">
+        <label for="inp-almoco">🥗 Almoço</label>
+        <textarea id="inp-almoco" rows="3" placeholder="Ex: Arroz, feijão, frango grelhado, salada de couve..."></textarea>
+      </div>
+
+      <div class="input-group">
+        <label for="inp-lanche">🥪 Lanche da tarde</label>
+        <textarea id="inp-lanche" rows="2" placeholder="Ex: Suco de laranja, bolo de milho..."></textarea>
+      </div>
+
+      <p class="modal-erro" id="erro-edicao"></p>
+      <div class="modal-actions">
+        <button class="btn-cancelar" id="btn-cancelar-edicao">Cancelar</button>
+        <button class="btn-primary"  id="btn-salvar-edicao">💾 Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toasts" class="toast-container"></div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-col">
+        <h3 class="footer-heading">Endereço</h3>
+        <p class="footer-line">&#9679; Rua Quintino Bocaiúva - Norte<br>Gravatá – PE, 55641-015</p>
+        <p class="footer-line">&#9675; Seg–Sex: 7h–17h</p>
+      </div>
+      <div class="footer-col">
+        <h3 class="footer-heading">Links Rápidos</h3>
+        <ul class="footer-links">
+          <li><a href="../index.html">&#8250; Início</a></li>
+          <li><a href="index.html">&#8250; Cardápio</a></li>
+          <li><a href="https://www.siepe.educacao.pe.gov.br/" target="_blank">&#8250; Notas</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3 class="footer-heading">Secretaria de Educação</h3>
+        <div class="pe-brand">
+          <img src="../assets/pe-logo.svg" alt="Brasão de Pernambuco" class="pe-logo" onerror="this.style.display='none'">
+          <div class="pe-text">
+            <span class="pe-gov">GOVERNO DO ESTADO</span>
+            <span class="pe-name">PERNAMBUCO</span>
+            <span class="pe-sub">Rede Estadual de Pernambuco</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2024 EREMPAF — Todos os direitos reservados.</div>
+  </footer>
+
+  <!-- FIREBASE + LÓGICA -->
+  <script type="module">
+    import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc }
+      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    /* ── Config ── */
+    const app = initializeApp({
+      apiKey:            "AIzaSyDgMBfsuR66vQiz5hG5F2OkhiTE_H1ZCTk",
+      authDomain:        "portal-erempaf.firebaseapp.com",
+      projectId:         "portal-erempaf",
+      storageBucket:     "portal-erempaf.firebasestorage.app",
+      messagingSenderId: "124907592592",
+      appId:             "1:124907592592:web:a9de2e6959a768c7d4b115"
+    });
+    const db = getFirestore(app);
+
+    /* ── Constantes ── */
+    const NOMES  = ["Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira"];
+
+    /* ── Estado ── */
+    let dados     = {};  // { "YYYY-MM-DD": { lancheManha, almoco, lanche, status } }
+    let editando  = false;
+    let diaISO    = null;
+
+    /* ── Helpers de data ── */
+    function isoStr(d) {
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    }
+    function segundaDaSemana() {
+      const h = new Date(); h.setHours(0,0,0,0);
+      const dow = h.getDay();
+      const diff = dow === 0 ? -6 : 1 - dow;
+      h.setDate(h.getDate() + diff);
+      return h;
+    }
+    function diasDaSemana() {
+      const seg = segundaDaSemana();
+      return Array.from({length:5}, (_,i) => {
+        const d = new Date(seg); d.setDate(seg.getDate() + i); return d;
+      });
+    }
+    function chaveFirestore() {
+      return isoStr(segundaDaSemana());
+    }
+
+    /* ── Firebase ── */
+    async function carregar() {
+      document.getElementById("dias-grid").innerHTML = `<div class="loading">Carregando cardápio...</div>`;
+      try {
+        const snap = await getDoc(doc(db, "cardapio", chaveFirestore()));
+        dados = snap.exists() ? snap.data() : {};
+      } catch { dados = {}; }
+      renderizar();
+    }
+
+    async function salvarDia(iso, payload) {
+      const chave = chaveFirestore();
+      const snap  = await getDoc(doc(db, "cardapio", chave));
+      const atual = snap.exists() ? snap.data() : {};
+      atual[iso]  = payload;
+      await setDoc(doc(db, "cardapio", chave), atual);
+      dados[iso]  = payload;
+    }
+
+    /* ── Render ── */
+    function renderizar() {
+      const dias  = diasDaSemana();
+      const seg   = dias[0], sex = dias[4];
+      const hoje  = new Date(); hoje.setHours(0,0,0,0);
+
+      const fmtCurto = { day: "numeric", month: "short" };
+      const fmtLongo = { day: "numeric", month: "long", year: "numeric" };
+      document.getElementById("semana-label").textContent =
+        `${seg.toLocaleDateString("pt-BR", fmtCurto)} – ${sex.toLocaleDateString("pt-BR", fmtLongo)}`;
+
+      const grid = document.getElementById("dias-grid");
+      grid.innerHTML = "";
+
+      dias.forEach((data, i) => {
+        const iso    = isoStr(data);
+        const d      = dados[iso] || {};
+        const status = d.status || "normal";
+        const isHoje = data.getTime() === hoje.getTime();
+        const passado = data < hoje;
+
+        const statusClass = { normal: "", alterado: "card-alterado" }[status] || "";
+        const badge = {
+          normal:   "",
+          alterado: `<span class="badge badge-amarelo">⚠️ Sujeito a alteração</span>`
+        }[status] || "";
+
+        const vazio = !d.lancheManha && !d.almoco && !d.lanche;
+
+        grid.innerHTML += `
+          <div class="dia-card ${statusClass}${isHoje ? " card-hoje" : ""}${passado && !isHoje ? " card-passado" : ""}">
+            <div class="dia-card-top">
+              <div>
+                <div class="dia-nome">${NOMES[i]}</div>
+                <div class="dia-data">${data.toLocaleDateString("pt-BR", { day:"numeric", month:"long" })}</div>
+              </div>
+              <div class="dia-top-right">
+                ${isHoje ? `<span class="hoje-tag">Hoje</span>` : ""}
+                ${editando ? `<button class="btn-editar-dia" data-iso="${iso}">✏️</button>` : ""}
+              </div>
+            </div>
+
+            ${badge}
+
+            <div class="dia-corpo">
+              ${d.lancheManha ? `<div class="refeicao"><span class="ref-icon">🥐</span><div><span class="ref-label">Lanche da manhã</span><p class="ref-texto">${d.lancheManha}</p></div></div>` : ""}
+              ${d.almoco ? `<div class="refeicao"><span class="ref-icon">🥗</span><div><span class="ref-label">Almoço</span><p class="ref-texto">${d.almoco}</p></div></div>` : ""}
+              ${d.lanche ? `<div class="refeicao"><span class="ref-icon">🥪</span><div><span class="ref-label">Lanche da tarde</span><p class="ref-texto">${d.lanche}</p></div></div>` : ""}
+              ${vazio    ? `<p class="dia-vazio">${editando ? 'Clique em ✏️ para preencher' : 'Cardápio não divulgado ainda.'}</p>` : ""}
+            </div>
+          </div>`;
+      });
+
+      document.querySelectorAll(".btn-editar-dia").forEach(btn =>
+        btn.addEventListener("click", () => abrirEdicao(btn.dataset.iso))
+      );
+    }
+
+    /* ── Modal Senha ── */
+    function abrirSenha() {
+      document.getElementById("inp-senha").value = "";
+      document.getElementById("erro-senha").textContent = "";
+      document.getElementById("modal-senha").classList.remove("hidden");
+      setTimeout(() => document.getElementById("inp-senha").focus(), 80);
+    }
+    function fecharSenha() { document.getElementById("modal-senha").classList.add("hidden"); }
+
+    document.getElementById("btn-editar").addEventListener("click", () => {
+      if (editando) {
+        editando = false;
+        document.getElementById("btn-editar").textContent = "✏️ Editar Cardápio";
+        document.getElementById("btn-editar").classList.remove("ativo");
+        renderizar();
+        toast("Modo edição desativado.", "info");
+      } else {
+        abrirSenha();
+      }
+    });
+    document.getElementById("btn-cancelar-senha").addEventListener("click", fecharSenha);
+    document.getElementById("modal-senha").addEventListener("click", e => { if(e.target.id==="modal-senha") fecharSenha(); });
+
+    async function verificarSenha() {
+      const val  = document.getElementById("inp-senha").value.trim();
+      const erro = document.getElementById("erro-senha");
+      if (!val) { erro.textContent = "Digite a senha."; return; }
+      erro.textContent = "";
+      try {
+        const snap = await getDoc(doc(db, "config", "cardapio"));
+        if (!snap.exists()) { erro.textContent = "Configuração não encontrada no Firebase."; return; }
+        if (val === snap.data().senha) {
+          fecharSenha();
+          editando = true;
+          document.getElementById("btn-editar").textContent = "🔒 Sair da Edição";
+          document.getElementById("btn-editar").classList.add("ativo");
+          renderizar();
+          toast("✅ Modo edição ativado!", "success");
+        } else {
+          erro.textContent = "Senha incorreta. Tente novamente.";
+          document.getElementById("inp-senha").value = "";
+          document.getElementById("inp-senha").focus();
+        }
+      } catch { erro.textContent = "Erro ao verificar. Tente novamente."; }
+    }
+    document.getElementById("btn-ok-senha").addEventListener("click", verificarSenha);
+    document.getElementById("inp-senha").addEventListener("keydown", e => { if(e.key==="Enter") verificarSenha(); });
+
+    /* ── Modal Edição ── */
+    function abrirEdicao(iso) {
+      diaISO = iso;
+      const d    = dados[iso] || {};
+      const data = new Date(iso + "T12:00:00");
+      const idx  = data.getDay() - 1;
+
+      document.getElementById("modal-edicao-titulo").textContent = NOMES[idx];
+      document.getElementById("modal-edicao-data").textContent   =
+        data.toLocaleDateString("pt-BR", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+
+      document.getElementById("inp-lanche-manha").value = d.lancheManha || "";
+      document.getElementById("inp-almoco").value       = d.almoco || "";
+      document.getElementById("inp-lanche").value       = d.lanche || "";
+      document.getElementById("erro-edicao").textContent = "";
+
+      const status = d.status || "normal";
+      document.querySelectorAll(".status-btn").forEach(b =>
+        b.classList.toggle("ativo", b.dataset.s === status)
+      );
+      document.getElementById("modal-edicao").classList.remove("hidden");
+      setTimeout(() => document.getElementById("inp-lanche-manha").focus(), 80);
+    }
+    function fecharEdicao() {
+      document.getElementById("modal-edicao").classList.add("hidden");
+      diaISO = null;
+    }
+    document.getElementById("btn-cancelar-edicao").addEventListener("click", fecharEdicao);
+    document.getElementById("modal-edicao").addEventListener("click", e => { if(e.target.id==="modal-edicao") fecharEdicao(); });
+
+    document.querySelectorAll(".status-btn").forEach(btn =>
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".status-btn").forEach(b => b.classList.remove("ativo"));
+        btn.classList.add("ativo");
+      })
+    );
+
+    document.getElementById("btn-salvar-edicao").addEventListener("click", async () => {
+      if (!diaISO) return;
+      const btn = document.getElementById("btn-salvar-edicao");
+      btn.textContent = "Salvando..."; btn.disabled = true;
+      try {
+        await salvarDia(diaISO, {
+          lancheManha: document.getElementById("inp-lanche-manha").value.trim(),
+          almoco:      document.getElementById("inp-almoco").value.trim(),
+          lanche:      document.getElementById("inp-lanche").value.trim(),
+          status:      document.querySelector(".status-btn.ativo")?.dataset.s || "normal"
+        });
+        fecharEdicao(); renderizar();
+        toast("✅ Cardápio salvo com sucesso!", "success");
+      } catch {
+        document.getElementById("erro-edicao").textContent = "Erro ao salvar. Tente novamente.";
+      } finally { btn.textContent = "💾 Salvar"; btn.disabled = false; }
+    });
+
+    /* ── Toast ── */
+    function toast(msg, tipo="info") {
+      const el = document.createElement("div");
+      el.className = `toast toast-${tipo}`;
+      el.textContent = msg;
+      document.getElementById("toasts").appendChild(el);
+      setTimeout(() => { el.classList.add("hide"); setTimeout(() => el.remove(), 350); }, 2800);
+    }
+
+    /* ── Init ── */
+    carregar();
+  </script>
+</body>
+</html>
