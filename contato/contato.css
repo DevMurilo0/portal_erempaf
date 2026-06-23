@@ -1,5 +1,5 @@
 /* ============================================================
-   SOBRE — EREMPAF
+   CONTATO — EREMPAF
    ============================================================ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -62,10 +62,7 @@ body {
 .conteudo { flex: 1; padding: 40px 0 60px; }
 .conteudo-inner { max-width: 1000px; margin: 0 auto; padding: 0 24px; display: flex; flex-direction: column; gap: 20px; }
 
-/* ── CARDS ROW ── */
-.cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-/* ── CARD ── */
+/* ── CARD (intro) ── */
 .card {
   background: var(--branco);
   border-radius: 8px;
@@ -85,7 +82,6 @@ body {
   gap: 20px;
 }
 
-/* ── CARD ICON ── */
 .card-icon-wrap {
   width: 40px;
   height: 40px;
@@ -106,8 +102,6 @@ body {
   gap: 14px;
 }
 
-.card-body { flex: 1; display: flex; flex-direction: column; gap: 10px; }
-
 .card-title {
   font-family: var(--font-main);
   font-size: 16px;
@@ -115,193 +109,80 @@ body {
   color: var(--azul);
 }
 
-.card-body p, .card-full > p {
-  font-size: 14px;
-  line-height: 1.8;
-  color: var(--texto-sub);
-}
-
-/* ── FEATURES GRID ── */
-.features-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.feature-item {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 14px 16px;
-  background: var(--cinza-bg);
-  border-radius: 6px;
-  border-left: 3px solid var(--azul);
-}
-
-.feature-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--azul);
-  flex-shrink: 0;
-  margin-top: 5px;
-}
-
-.feature-item strong {
-  display: block;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--texto);
-  margin-bottom: 3px;
-}
-
-.feature-item span {
-  font-size: 12px;
-  color: var(--texto-sub);
-  line-height: 1.5;
-}
-
-/* ── TECH BADGES ── */
-.tech-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-.badge {
-  background: var(--azul);
-  color: white;
-  font-family: var(--font-main);
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 20px;
-  letter-spacing: 0.04em;
-}
-
-/* ── EQUIPE ── */
-.equipe-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-
-.membro-card {
-  display: flex;
-  gap: 18px;
-  align-items: flex-start;
-  background: var(--cinza-bg);
-  border-radius: 8px;
-  padding: 18px 20px;
-  border-left: 3px solid var(--azul);
-}
-
-.membro-placeholder {
-  border-left-color: var(--borda);
-}
-
-.membro-foto-wrap { flex-shrink: 0; }
-
-.membro-foto-placeholder {
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  background: var(--azul-light);
-  color: var(--azul);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px dashed var(--azul);
-}
-
-.membro-placeholder .membro-foto-placeholder {
-  color: #b3bbcc;
-  border-color: #c5cbdb;
-  background: #e8eaf0;
-}
-
-.membro-foto-placeholder svg { width: 40px; height: 40px; }
-
-.membro-info { display: flex; flex-direction: column; gap: 4px; }
-
-.membro-nome {
-  font-family: var(--font-main);
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--texto);
-}
-
-.membro-cargo {
-  font-family: var(--font-main);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--azul);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  line-height: 1.4;
-}
-
-.membro-placeholder .membro-cargo { color: #8a93a8; }
-
-.membro-desc {
-  font-size: 13px;
-  line-height: 1.7;
-  color: var(--texto-sub);
-  margin-top: 2px;
-}
-
-.membro-contato {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px dashed var(--borda);
-}
-
-.membro-contato-aviso {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--azul-escuro);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
-  letter-spacing: 0.01em;
-}
-
-.membro-contato-aviso svg { width: 14px; height: 14px; flex-shrink: 0; }
-
-.membro-contato-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.membro-contato-item {
-  background: var(--branco);
-  border-radius: 6px;
-  padding: 10px 12px;
-  border-left: 3px solid var(--vermelho);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.membro-placeholder .membro-contato-item { border-left-color: var(--borda); }
-
-.membro-contato-label {
-  font-size: 9px;
-  font-weight: 700;
-  color: #999;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-}
-
-.membro-contato-valor {
-  font-size: 12px;
-  color: var(--texto);
-  font-weight: 600;
-  word-break: break-word;
-}
-
-/* ── CONTATO ── */
 .contato-intro {
   font-size: 14px;
   color: var(--texto-sub);
   line-height: 1.7;
+}
+
+/* ── CONTATOS GRID ── */
+.contatos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.contato-card {
+  background: var(--branco);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  border-left: 3px solid var(--azul);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.contato-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1), 0 8px 24px rgba(0,0,0,0.07);
+  transform: translateY(-2px);
+}
+
+.contato-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contato-icon-wrap svg { width: 24px; height: 24px; }
+
+.contato-icon-email     { background: var(--azul-light); color: var(--azul); }
+.contato-icon-instagram { background: #fbe7ef; color: #c0246b; }
+.contato-icon-whatsapp  { background: #e3f6ea; color: var(--verde); }
+
+.contato-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.contato-label {
+  font-family: var(--font-main);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--texto);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.contato-valor {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--azul);
+  word-break: break-word;
+}
+
+.contato-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--texto-sub);
+  margin-top: 2px;
 }
 
 /* ── FOOTER ── */
@@ -325,9 +206,7 @@ body {
   .header-title { font-size: 15px; }
   .header-logo { width: 56px; height: 56px; }
   .nav-link { padding: 12px 14px; font-size: 13px; }
-  .cards-row { grid-template-columns: 1fr; }
-  .features-grid { grid-template-columns: 1fr; }
   .footer-inner { grid-template-columns: 1fr; gap: 24px; }
-  .membro-card { flex-direction: column; align-items: center; text-align: center; }
-  .membro-contato-grid { grid-template-columns: 1fr; }
+  .contatos-grid { grid-template-columns: 1fr; }
+  .contato-card { flex-direction: column; align-items: center; text-align: center; }
 }
