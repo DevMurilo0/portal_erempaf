@@ -11,12 +11,17 @@ import {
   deleteField
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+import { initNotificacoes } from "./notificacoes.js";
+
+window.mostrarToast = mostrarToast;
+
 /* ──────────────────────────────────────────────
    CONFIGURAÇÃO
 ────────────────────────────────────────────── */
 const auth = getAuth();
 
-// Email esperado para esta turma: "2ano-b" → "2anob@erempaf.com"
+
+
 const EMAIL_TURMA = SALA_ID.replace("-", "") + "@erempaf.com";
 
 const MATERIAS = [
@@ -26,35 +31,35 @@ const MATERIAS = [
   "Quimica", "Sociologia", "Fisica"
 ];
 
-let modoEdicao      = false;
+let modoEdicao = false;
 let diaDetalheAtual = null;
-let estadoMaterias  = {};
-let estadoDetalhes  = {};
-let estadoFotos     = {}; // { "2026-06-10": ["base64...", "base64..."] }
-let tabAtiva        = "anotacoes";
-let dataAtual       = new Date();
+let estadoMaterias = {};
+let estadoDetalhes = {};
+let estadoFotos = {}; // { "2026-06-10": ["base64...", "base64..."] }
+let tabAtiva = "anotacoes";
+let dataAtual = new Date();
 
 /* ──────────────────────────────────────────────
    ELEMENTOS
 ────────────────────────────────────────────── */
-const telaLogin      = document.getElementById("tela-login");
-const btnLoginForm   = document.getElementById("btn-login");
-const emailInput     = document.getElementById("login-email");
-const senhaInput     = document.getElementById("login-senha");
-const erroLogin      = document.getElementById("login-erro");
-const btnLoginTopo   = document.getElementById("btn-login-topo");
+const telaLogin = document.getElementById("tela-login");
+const btnLoginForm = document.getElementById("btn-login");
+const emailInput = document.getElementById("login-email");
+const senhaInput = document.getElementById("login-senha");
+const erroLogin = document.getElementById("login-erro");
+const btnLoginTopo = document.getElementById("btn-login-topo");
 
-const diasContainer  = document.getElementById("dias");
-const mesAnoSpan     = document.getElementById("mes-ano");
-const btnEditar      = document.getElementById("btn-editar");
-const btnSalvar      = document.getElementById("btn-salvar");
-const campoAvisos    = document.getElementById("campo-avisos");
+const diasContainer = document.getElementById("dias");
+const mesAnoSpan = document.getElementById("mes-ano");
+const btnEditar = document.getElementById("btn-editar");
+const btnSalvar = document.getElementById("btn-salvar");
+const campoAvisos = document.getElementById("campo-avisos");
 
 const painelDetalhes = document.getElementById("painel-detalhes");
-const campoDetalhes  = document.getElementById("campo-detalhes");
+const campoDetalhes = document.getElementById("campo-detalhes");
 const tituloDetalhes = document.getElementById("titulo-detalhes");
-const diaSemanaEl    = document.getElementById("painel-dia-semana");
-const materiasGrid   = document.getElementById("materias-grid");
+const diaSemanaEl = document.getElementById("painel-dia-semana");
+const materiasGrid = document.getElementById("materias-grid");
 
 /* ──────────────────────────────────────────────
    AUTENTICAÇÃO — LOGIN DA TURMA
@@ -67,7 +72,7 @@ function estaLogadoNaTurma(user) {
 function abrirModalLogin() {
   if (emailInput) emailInput.value = "";
   if (senhaInput) senhaInput.value = "";
-  if (erroLogin)  erroLogin.textContent = "";
+  if (erroLogin) erroLogin.textContent = "";
   telaLogin.classList.remove("hidden");
   setTimeout(() => emailInput?.focus(), 100);
 }
@@ -173,9 +178,9 @@ async function verificarSenhaEdicao(senhaDigitada) {
 function abrirModalSenhaEdicao() {
   const modal = document.getElementById("modal-senha-edicao");
   const input = document.getElementById("senha-edicao-input");
-  const erro  = document.getElementById("senha-edicao-erro");
+  const erro = document.getElementById("senha-edicao-erro");
   if (input) input.value = "";
-  if (erro)  erro.textContent = "";
+  if (erro) erro.textContent = "";
   modal.classList.remove("hidden");
   setTimeout(() => input?.focus(), 100);
 }
@@ -186,7 +191,7 @@ function fecharModalSenhaEdicao() {
 
 document.getElementById("btn-confirmar-senha-edicao")?.addEventListener("click", async () => {
   const input = document.getElementById("senha-edicao-input");
-  const erro  = document.getElementById("senha-edicao-erro");
+  const erro = document.getElementById("senha-edicao-erro");
   const senha = input.value;
 
   if (!senha) { erro.textContent = "Digite a senha."; return; }
@@ -233,10 +238,10 @@ btnSalvar.addEventListener("click", async () => {
 
 function atualizarModoEdicao() {
   document.querySelectorAll("textarea").forEach(t => { t.disabled = !modoEdicao; });
-  campoAvisos.disabled    = !modoEdicao;
-  campoDetalhes.disabled  = !modoEdicao;
-  btnSalvar.hidden        = !modoEdicao;
-  btnEditar.hidden        = modoEdicao;
+  campoAvisos.disabled = !modoEdicao;
+  campoDetalhes.disabled = !modoEdicao;
+  btnSalvar.hidden = !modoEdicao;
+  btnEditar.hidden = modoEdicao;
 
   const btnPainelSalvar = document.getElementById("btn-painel-salvar");
   if (btnPainelSalvar) btnPainelSalvar.hidden = !modoEdicao;
@@ -319,7 +324,7 @@ function renderizarCalendario() {
       ).join("");
 
       const notaTexto = (estadoDetalhes[dataISO] || "").trim();
-      const notaHTML  = notaTexto
+      const notaHTML = notaTexto
         ? `<div class="dia-nota-preview">${escapeHtml(notaTexto)}</div>`
         : "";
 
@@ -355,14 +360,14 @@ function abrirPainel(diaISO) {
 
   const [ano, mes, dia] = diaISO.split("-").map(Number);
   const data = new Date(ano, mes - 1, dia);
-  const diasSemana = ["Domingo","Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira","Sábado"];
+  const diasSemana = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 
   tituloDetalhes.textContent = data.toLocaleDateString("pt-BR", {
     day: "numeric", month: "long", year: "numeric"
   });
   if (diaSemanaEl) diaSemanaEl.textContent = diasSemana[data.getDay()];
 
-  campoDetalhes.value    = estadoDetalhes[diaISO] || "";
+  campoDetalhes.value = estadoDetalhes[diaISO] || "";
   campoDetalhes.disabled = !modoEdicao;
 
   renderizarMaterias(diaISO);
@@ -402,7 +407,7 @@ function renderizarMaterias(diaISO) {
           <span class="materia-nome">${mat}</span>
         </div>`;
     }).join("") +
-  `</div>`;
+    `</div>`;
 
   // Aba Anotações: blocos de descrição abaixo do campo de texto
   renderizarBlocosAnotacoes(diaISO);
@@ -437,20 +442,20 @@ function renderizarBlocosAnotacoes(diaISO) {
         </div>
       </div>
     `).join("") +
-  `</div>`;
+    `</div>`;
 }
 
-window.toggleBloco = function(header) {
+window.toggleBloco = function (header) {
   const bloco = header.closest(".materia-bloco");
   bloco.classList.toggle("aberto");
 };
 
-window.salvarDescMateria = function(diaISO, materia, valor) {
+window.salvarDescMateria = function (diaISO, materia, valor) {
   if (!estadoMaterias[diaISO]) estadoMaterias[diaISO] = {};
   estadoMaterias[diaISO][materia] = valor;
 };
 
-window.toggleMateria = function(diaISO, materia, el) {
+window.toggleMateria = function (diaISO, materia, el) {
   if (!modoEdicao) {
     mostrarToast("🔒 Ative o modo edição para alterar", "info");
     return;
@@ -468,18 +473,18 @@ window.toggleMateria = function(diaISO, materia, el) {
 };
 
 function atualizarStats(diaISO) {
-  const hoje    = new Date();
-  const data    = new Date(diaISO);
-  const diffMs  = data - hoje;
+  const hoje = new Date();
+  const data = new Date(diaISO);
+  const diffMs = data - hoje;
   const diffDias = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-  const elDias    = document.getElementById("stat-dias");
+  const elDias = document.getElementById("stat-dias");
   const elMateria = document.getElementById("stat-materias");
 
   if (elDias) {
-    if (diffDias === 0)      elDias.textContent = "Hoje";
-    else if (diffDias > 0)   elDias.textContent = `+${diffDias}`;
-    else                     elDias.textContent = diffDias;
+    if (diffDias === 0) elDias.textContent = "Hoje";
+    else if (diffDias > 0) elDias.textContent = `+${diffDias}`;
+    else elDias.textContent = diffDias;
   }
   if (elMateria) elMateria.textContent = Object.keys(estadoMaterias[diaISO] || {}).length;
 }
@@ -548,7 +553,7 @@ function renderizarFotos(diaISO) {
 
 // Fila de fotos aguardando descrição
 let _filaPendente = [];
-let _diaUpload    = null;
+let _diaUpload = null;
 
 async function iniciarUploadFotos(diaISO, files) {
   if (!files.length) return;
@@ -623,8 +628,8 @@ function abrirModalDescFoto(b64) {
 function confirmarDescFoto() {
   const modal = document.getElementById("modal-desc-foto");
   const input = document.getElementById("modal-desc-input");
-  const erro  = document.getElementById("modal-desc-erro");
-  const desc  = input.value.trim();
+  const erro = document.getElementById("modal-desc-erro");
+  const desc = input.value.trim();
 
   if (!desc) {
     erro.textContent = "A descrição é obrigatória.";
@@ -655,7 +660,7 @@ function comprimirImagem(file, maxWidth, quality) {
       img.onload = () => {
         const canvas = document.createElement("canvas");
         const ratio = Math.min(maxWidth / img.width, maxWidth / img.height, 1);
-        canvas.width  = img.width  * ratio;
+        canvas.width = img.width * ratio;
         canvas.height = img.height * ratio;
         canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
         resolve(canvas.toDataURL("image/jpeg", quality));
@@ -666,14 +671,14 @@ function comprimirImagem(file, maxWidth, quality) {
   });
 }
 
-window.removerFoto = function(diaISO, idx) {
+window.removerFoto = function (diaISO, idx) {
   if (!estadoFotos[diaISO]) return;
   estadoFotos[diaISO].splice(idx, 1);
   renderizarFotos(diaISO);
   mostrarToast("🗑️ Foto removida. Salve para confirmar.", "info");
 };
 
-window.abrirFotoGrande = function(diaISO, startIdx) {
+window.abrirFotoGrande = function (diaISO, startIdx) {
   const fotos = estadoFotos[diaISO] || [];
   if (!fotos.length) return;
 
@@ -749,7 +754,7 @@ window.abrirFotoGrande = function(diaISO, startIdx) {
     const counter = overlay.querySelector(".lightbox-counter");
     if (counter) counter.textContent = `${idx + 1} / ${total}`;
     const desc = document.getElementById("lb-desc");
-    const bar  = document.getElementById("lb-bottombar");
+    const bar = document.getElementById("lb-bottombar");
     if (desc) desc.textContent = f.desc || "";
     if (bar) bar.style.display = f.desc ? "" : "none";
   }
@@ -780,9 +785,9 @@ window.abrirFotoGrande = function(diaISO, startIdx) {
 
   // Teclado (sem F)
   function onKey(e) {
-    if (e.key === "ArrowLeft")  { if (scale === 1) atualizar(idx - 1); }
+    if (e.key === "ArrowLeft") { if (scale === 1) atualizar(idx - 1); }
     if (e.key === "ArrowRight") { if (scale === 1) atualizar(idx + 1); }
-    if (e.key === "Escape")     { overlay.remove(); document.removeEventListener("keydown", onKey); }
+    if (e.key === "Escape") { overlay.remove(); document.removeEventListener("keydown", onKey); }
   }
   document.addEventListener("keydown", onKey);
 
@@ -886,7 +891,7 @@ async function salvarCalendario() {
   }
 
   const mesAno = mesAnoKey();
-  const dados  = {};
+  const dados = {};
 
   document.querySelectorAll("textarea[data-dia]").forEach(el => {
     dados[el.dataset.dia] = el.value.trim() || deleteField();
@@ -920,15 +925,18 @@ async function salvarCalendario() {
   );
 }
 
+
+/*MEU DEUS PFVR ME AJUDA */
+
 async function carregarCalendario() {
   const mesAno = mesAnoKey();
-  const ref    = doc(window.db, "salas", SALA_ID, "calendario", mesAno);
-  const snap   = await getDoc(ref);
+  const ref = doc(window.db, "salas", SALA_ID, "calendario", mesAno);
+  const snap = await getDoc(ref);
 
   campoAvisos.value = "";
-  estadoDetalhes    = {};
-  estadoMaterias    = {};
-  estadoFotos       = {};
+  estadoDetalhes = {};
+  estadoMaterias = {};
+  estadoFotos = {};
 
   if (!snap.exists()) return;
   const dados = snap.data();
@@ -943,7 +951,7 @@ async function carregarCalendario() {
 
   if (dados.detalhes) Object.assign(estadoDetalhes, dados.detalhes);
   if (dados.materias) Object.assign(estadoMaterias, dados.materias);
-  if (dados.fotos)    Object.assign(estadoFotos, dados.fotos);
+  if (dados.fotos) Object.assign(estadoFotos, dados.fotos);
 
   // Recria os dias com o estado atualizado (mostra a bolinha de conteúdo
   // e os chips de matérias corretamente, já que os dados acabaram de chegar)
@@ -952,6 +960,10 @@ async function carregarCalendario() {
   // Atualiza chips em todos os dias com matérias
   Object.keys(estadoMaterias).forEach(diaISO => atualizarChipsDia(diaISO));
 }
+
+
+/*AMEM ACABOU UMA PARTE, ESCUTE QUEM ESTIVER LENDO ISSO NAO ME JULGUE PELO HORROR QUE
+PODE ESTAR ESSE CODIGO */
 
 window.carregarCalendario = carregarCalendario;
 
@@ -973,8 +985,8 @@ document.getElementById("mes-proximo").addEventListener("click", async () => {
 /* ──────────────────────────────────────────────
    MENU LATERAL
 ────────────────────────────────────────────── */
-const menuBtn        = document.getElementById("menuBtn");
-const sidebar        = document.getElementById("sidebar");
+const menuBtn = document.getElementById("menuBtn");
+const sidebar = document.getElementById("sidebar");
 const sidebarOverlay = document.getElementById("sidebar-overlay");
 
 menuBtn?.addEventListener("click", () => {
@@ -986,6 +998,10 @@ sidebarOverlay?.addEventListener("click", () => {
   sidebar.classList.remove("open");
   sidebarOverlay.classList.remove("show");
 });
+/*02:54 e 1001 para mim isso é no minimo bonito */
+
+
+
 
 document.querySelectorAll(".sidebar a").forEach(a =>
   a.addEventListener("click", () => {
@@ -1016,3 +1032,4 @@ function mostrarToast(msg, tipo = "info") {
 // O calendário é renderizado e carregado dentro do onAuthStateChanged acima.
 // Renderiza a estrutura vazia imediatamente para não mostrar tela em branco.
 renderizarCalendario();
+initNotificacoes();
