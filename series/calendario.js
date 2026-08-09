@@ -949,7 +949,11 @@ async function salvarCalendario() {
 
   // ↓ NOVO: dispara notificação se algo novo foi marcado pra um dia futuro
   const eventosNovos = detectarNovosEventos();
+  console.log("🔍 snapshot antes:", window._snapshotMaterias);
+  console.log("🔍 eventos detectados:", eventosNovos);
+  console.log("🔍 notificarNovosEventos existe?", typeof window.notificarNovosEventos);
   if (eventosNovos.length > 0 && window.notificarNovosEventos) {
+    console.log("🚀 chamando notificarNovosEventos...");
     window.notificarNovosEventos(eventosNovos);
   }
   window._snapshotMaterias = null;
