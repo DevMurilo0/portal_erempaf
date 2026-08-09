@@ -21,14 +21,14 @@ import {
 const VAPID_KEY = "BEiUVJTzBgQOWKT0Oa9SCppUYu5AxGQq0ofDwVCgP2uPGunn3TQAGV5_z1txOGi-A_y80gZPC1vNaRt_5d2ux00";
 
 /* ──────────────────────────────────────────────
-   ⚙️ ÚNICO PONTO A MUDAR SE TROCAR DE HOSPEDAGEM
+ÚNICO PONTO A MUDAR SE TROCAR DE HOSPEDAGEM
    Esse endereço é do site "backend" separado
    (só as funções), que continua na Netlify mesmo
    que o site principal mude pra Hostinger ou
    qualquer outro lugar. Troque aqui pela URL real
    que aparecer depois do deploy do backend.
 ────────────────────────────────────────────── */
-const API_URL = "https://erempafbackend.netlify.app/.netlify/functions/lembretes-diarios";
+const API_URL = "https://erempafbackend.netlify.app/.netlify/functions";
 
 const LOCAL_KEY = `erempaf_notif_${SALA_ID}`;
 
