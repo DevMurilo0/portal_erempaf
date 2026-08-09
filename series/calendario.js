@@ -200,6 +200,7 @@ document.getElementById("btn-confirmar-senha-edicao")?.addEventListener("click",
   if (ok) {
     fecharModalSenhaEdicao();
     modoEdicao = true;
+    window._snapshotMaterias = JSON.parse(JSON.stringify(estadoMaterias)); // ← NOVO: guarda "foto" de antes da edição
     atualizarModoEdicao();
     mostrarToast("✏️ Modo edição ativado", "info");
   } else {
@@ -884,6 +885,28 @@ function atualizarChipsDia(diaISO) {
 const mesAnoKey = () =>
   `${dataAtual.getFullYear()}-${String(dataAtual.getMonth() + 1).padStart(2, "0")}`;
 
+// ← NOVO: compara o estado atual das matérias com a "foto" tirada antes
+// da edição começar, e devolve só o que é novo/mudou pra dias futuros
+function detectarNovosEventos() {
+  const antes = window._snapshotMaterias || {};
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  const eventos = [];
+  Object.entries(estadoMaterias).forEach(([diaISO, materias]) => {
+    const dataEvento = new Date(diaISO + "T00:00:00");
+    if (dataEvento < hoje) return; // ignora dias que já passaram
+
+    Object.entries(materias).forEach(([materia, desc]) => {
+      const descAntes = (antes[diaISO] || {})[materia];
+      if (descAntes === undefined || descAntes !== desc) {
+        eventos.push({ data: diaISO, materia, descricao: desc });
+      }
+    });
+  });
+  return eventos;
+}
+
 async function salvarCalendario() {
   if (!estaLogadoNaTurma(window.usuarioLogado) && !turmaJaAutenticada()) {
     mostrarToast("⚠️ Faça login para salvar", "error");
@@ -923,6 +946,17 @@ async function salvarCalendario() {
     dados,
     { merge: true }
   );
+
+  // ↓ NOVO: dispara notificação se algo novo foi marcado pra um dia futuro
+  const eventosNovos = detectarNovosEventos();
+  console.log("🔍 snapshot antes:", window._snapshotMaterias);
+  console.log("🔍 eventos detectados:", eventosNovos);
+  console.log("🔍 notificarNovosEventos existe?", typeof window.notificarNovosEventos);
+  if (eventosNovos.length > 0 && window.notificarNovosEventos) {
+    console.log("🚀 chamando notificarNovosEventos...");
+    window.notificarNovosEventos(eventosNovos);
+  }
+  window._snapshotMaterias = null;
 }
 
 
