@@ -1,17 +1,11 @@
 /* ──────────────────────────────────────────────
    notificacoes.js
-   Botão "Ativar notificações" por turma — EREMPAF
+   Botão "Ativar notificações" + disparo de eventos
+   novos — EREMPAF
 
    Salva em /series/notificacoes.js
-   (mesma pasta do calendario.js)
-
-   Como funciona:
-   - Ao clicar, pede permissão de notificação no navegador
-   - Gera um token FCM único pra esse aparelho
-   - Salva esse token no Firestore junto com a lista de
-     turmas que a pessoa escolheu acompanhar
-   - O estado do botão (ativado/desativado) fica salvo
-     no localStorage do próprio aparelho
+   (mesma pasta do calendario.js, no repositório
+   do SITE — não é o mesmo repositório do backend)
 ────────────────────────────────────────────── */
 
 import { getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -26,7 +20,16 @@ import {
 
 const VAPID_KEY = "BEiUVJTzBgQOWKT0Oa9SCppUYu5AxGQq0ofDwVCgP2uPGunn3TQAGV5_z1txOGi-A_y80gZPC1vNaRt_5d2ux00";
 
-// SALA_ID já existe globalmente (definido no <script> de cada index.html de turma)
+/* ──────────────────────────────────────────────
+   ⚙️ ÚNICO PONTO A MUDAR SE TROCAR DE HOSPEDAGEM
+   Esse endereço é do site "backend" separado
+   (só as funções), que continua na Netlify mesmo
+   que o site principal mude pra Hostinger ou
+   qualquer outro lugar. Troque aqui pela URL real
+   que aparecer depois do deploy do backend.
+────────────────────────────────────────────── */
+const API_URL = "https://erempafbackend.netlify.app/.netlify/functions/lembretes-diarios";
+
 const LOCAL_KEY = `erempaf_notif_${SALA_ID}`;
 
 let tokenAtual = null;
@@ -41,7 +44,6 @@ function marcarLocal(ativo) {
 }
 
 function toast(msg, tipo) {
-    // Reaproveita o mesmo sistema de toast do calendario.js
     if (window.mostrarToast) window.mostrarToast(msg, tipo);
 }
 
@@ -143,3 +145,20 @@ export function initNotificacoes() {
 
     acoes.prepend(btn);
 }
+
+/* ──────────────────────────────────────────────
+   DISPARO DE NOTIFICAÇÃO IMEDIATA
+   Chamado pelo calendario.js logo após salvar,
+   quando existem eventos novos/alterados.
+────────────────────────────────────────────── */
+window.notificarNovosEventos = async function (eventos) {
+    try {
+        await fetch(`${API_URL}/notificar-imediato`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ turma: SALA_ID, eventos })
+        });
+    } catch (e) {
+        console.warn("Não foi possível notificar:", e);
+    }
+};
