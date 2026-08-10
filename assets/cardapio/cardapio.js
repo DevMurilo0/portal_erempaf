@@ -32,6 +32,12 @@ let diaAtivo   = diaDeHoje();
 let dados      = {};          // { segunda: { cafe:"...", almoco:"...", lanche:"..." }, ... }
 
 /* ── Helpers ── */
+function escapeHtml(texto) {
+  const div = document.createElement("div");
+  div.textContent = texto;
+  return div.innerHTML;
+}
+
 function diaDeHoje() {
   const mapa = { 1:"segunda", 2:"terca", 3:"quarta", 4:"quinta", 5:"sexta" };
   return mapa[new Date().getDay()] || "segunda";
@@ -54,7 +60,9 @@ async function salvarCardapio() {
   document.querySelectorAll(".editor-cardapio").forEach(campo => {
     const { dia, tipo } = campo.dataset;
     if (!dados[dia]) dados[dia] = {};
-    dados[dia][tipo] = campo.innerHTML.trim();
+    // Salva como texto puro (innerText preserva quebras de linha) — nunca innerHTML,
+    // pra não gravar HTML/script arbitrário no Firestore (stored XSS).
+    dados[dia][tipo] = campo.innerText.trim();
   });
 
   const btn = document.getElementById("btnSalvar");
@@ -106,7 +114,7 @@ function renderizarDia(diaKey) {
           data-dia="${diaKey}"
           data-tipo="${tipo}"
           ${modoEdicao ? 'contenteditable="true"' : ""}
-        >${conteudo || (modoEdicao ? "" : '<span class="vazio">Não informado</span>')}</div>
+        >${conteudo ? escapeHtml(conteudo).replace(/\n/g, "<br>") : (modoEdicao ? "" : '<span class="vazio">Não informado</span>')}</div>
       </div>`;
 
     grid.appendChild(card);

@@ -439,7 +439,7 @@ function renderizarBlocosAnotacoes(diaISO) {
             placeholder="Tarefa, prova, conteúdo..."
             ${modoEdicao ? "" : "disabled"}
             oninput="salvarDescMateria('${diaISO}','${mat}',this.value)"
-          >${escapeHtml(desc || "")}</textarea>
+          >${desc || ""}</textarea>
         </div>
       </div>
     `).join("") +
@@ -532,8 +532,8 @@ function renderizarFotos(diaISO) {
     ? `<div class="fotos-galeria">
         ${fotos.map((foto, i) => `
           <div class="foto-item">
-            <img src="${foto.img}" onclick="abrirFotoGrande('${diaISO}', ${i})" title="${escapeHtml(foto.desc || "")}">
-            ${foto.desc ? `<div class="foto-desc-badge">${escapeHtml(foto.desc)}</div>` : ""}
+            <img src="${foto.img}" onclick="abrirFotoGrande('${diaISO}', ${i})" title="${foto.desc}">
+            ${foto.desc ? `<div class="foto-desc-badge">${foto.desc}</div>` : ""}
             ${modoEdicao ? `<button class="btn-remover-foto" onclick="removerFoto('${diaISO}', ${i})">✕</button>` : ""}
           </div>
         `).join("")}
@@ -737,7 +737,7 @@ window.abrirFotoGrande = function (diaISO, startIdx) {
         <button class="lightbox-nav lb-next${total <= 1 ? ' hidden-nav' : ''}" id="lb-next">›</button>
       </div>
       <div class="lightbox-bottombar" id="lb-bottombar" style="${foto.desc ? '' : 'display:none'}">
-        <p class="lightbox-desc" id="lb-desc">${escapeHtml(foto.desc || '')}</p>
+        <p class="lightbox-desc" id="lb-desc">${foto.desc || ''}</p>
       </div>
     `;
   }
