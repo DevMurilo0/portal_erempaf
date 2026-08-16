@@ -181,3 +181,4 @@ window.notificarNovosEventos = async function (eventos) {
         console.warn("Não foi possível notificar:", e);
     }
 };
+
