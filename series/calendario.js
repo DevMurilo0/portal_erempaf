@@ -1066,4 +1066,3 @@ function mostrarToast(msg, tipo = "info") {
 // Renderiza a estrutura vazia imediatamente para não mostrar tela em branco.
 renderizarCalendario();
 initNotificacoes();
-

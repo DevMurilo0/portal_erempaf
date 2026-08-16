@@ -21,7 +21,7 @@ import {
 const VAPID_KEY = "BEiUVJTzBgQOWKT0Oa9SCppUYu5AxGQq0ofDwVCgP2uPGunn3TQAGV5_z1txOGi-A_y80gZPC1vNaRt_5d2ux00";
 
 /* ──────────────────────────────────────────────
-   ÚNICO PONTO A MUDAR SE TROCAR DE HOSPEDAGEM
+ÚNICO PONTO A MUDAR SE TROCAR DE HOSPEDAGEM
    Esse endereço é do site "backend" separado
    (só as funções), que continua na Netlify mesmo
    que o site principal mude pra Hostinger ou
@@ -31,26 +31,8 @@ const VAPID_KEY = "BEiUVJTzBgQOWKT0Oa9SCppUYu5AxGQq0ofDwVCgP2uPGunn3TQAGV5_z1txO
 const API_URL = "https://erempafbackend.netlify.app/.netlify/functions";
 
 const LOCAL_KEY = `erempaf_notif_${SALA_ID}`;
-const DEVICE_ID_KEY = "erempaf_device_id";
 
 let tokenAtual = null;
-
-/* ──────────────────────────────────────────────
-   ID FIXO DO APARELHO
-   Ao contrário do token do FCM (que pode mudar
-   de vez em quando), esse ID nunca muda depois de
-   gerado — é ele que identifica o documento no
-   Firestore, evitando cadastros duplicados quando
-   o token do FCM rotaciona.
-────────────────────────────────────────────── */
-function obterDeviceId() {
-    let id = localStorage.getItem(DEVICE_ID_KEY);
-    if (!id) {
-        id = (crypto.randomUUID ? crypto.randomUUID() : `dev-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-        localStorage.setItem(DEVICE_ID_KEY, id);
-    }
-    return id;
-}
 
 function estaAtivoNesteAparelho() {
     return localStorage.getItem(LOCAL_KEY) === "1";
@@ -98,11 +80,10 @@ async function ativar(btn) {
         }
 
         const token = await obterToken();
-        const deviceId = obterDeviceId();
 
         await setDoc(
-            doc(window.db, "inscricoes", deviceId),
-            { token, turmas: arrayUnion(SALA_ID), atualizadoEm: serverTimestamp() },
+            doc(window.db, "inscricoes", token),
+            { turmas: arrayUnion(SALA_ID), atualizadoEm: serverTimestamp() },
             { merge: true }
         );
 
@@ -120,10 +101,10 @@ async function desativar(btn) {
     btn.textContent = "⏳...";
 
     try {
-        const deviceId = obterDeviceId();
+        const token = await obterToken();
 
         await setDoc(
-            doc(window.db, "inscricoes", deviceId),
+            doc(window.db, "inscricoes", token),
             { turmas: arrayRemove(SALA_ID), atualizadoEm: serverTimestamp() },
             { merge: true }
         );
@@ -181,4 +162,3 @@ window.notificarNovosEventos = async function (eventos) {
         console.warn("Não foi possível notificar:", e);
     }
 };
-
