@@ -949,13 +949,14 @@ async function salvarCalendario() {
 
   // ↓ NOVO: dispara notificação se algo novo foi marcado pra um dia futuro
   const eventosNovos = detectarNovosEventos();
+  console.log("🔍 snapshot antes:", window._snapshotMaterias);
+  console.log("🔍 eventos detectados:", eventosNovos);
+  console.log("🔍 notificarNovosEventos existe?", typeof window.notificarNovosEventos);
   if (eventosNovos.length > 0 && window.notificarNovosEventos) {
+    console.log("🚀 chamando notificarNovosEventos...");
     window.notificarNovosEventos(eventosNovos);
   }
-  // Atualiza a "foto" pro estado atual (em vez de zerar), pra evitar
-  // notificação duplicada caso o usuário salve de novo em seguida
-  // (ex: salvar no painel do dia e depois no botão de cima)
-  window._snapshotMaterias = JSON.parse(JSON.stringify(estadoMaterias));
+  window._snapshotMaterias = null;
 }
 
 
