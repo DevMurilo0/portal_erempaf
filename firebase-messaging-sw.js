@@ -6,6 +6,12 @@
    (mesmo nível do index.html principal), senão o
    navegador não consegue registrar o escopo certo
    e o push não chega com o site fechado.
+
+   FIX: agora lê tudo de payload.data (não mais de
+   payload.notification). Isso combina com o backend
+   que manda só "data" no envio — assim o SDK do FCM
+   não exibe a notificação sozinho, e ela só aparece
+   uma vez, aqui, com o ícone certo.
 ────────────────────────────────────────────── */
 
 importScripts("https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js");
@@ -25,13 +31,13 @@ const messaging = firebase.messaging();
 
 // Dispara quando a notificação chega com o site FECHADO ou em segundo plano
 messaging.onBackgroundMessage((payload) => {
-    const dados = payload.notification || {};
+    const dados = payload.data || {};
     const titulo = dados.title || "EREMPAF";
     const opcoes = {
         body: dados.body || "",
         icon: dados.icon || "/logo.png",
         badge: "/logo.png",
-        data: payload.data || {}
+        data: { url: dados.url || "/" }
     };
     self.registration.showNotification(titulo, opcoes);
 });
