@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <title>1º Ano F — EREMPAF</title>
@@ -7,262 +8,290 @@
   <link rel="stylesheet" href="/series/calendario.css">
   <!-- TEMA TURMA F -->
   <style>
-:root {
-  --red-deep:   #6a1aaa;
-  --red-mid:    #8a2ecc;
-  --red-main:   #aa55ff;
-  --red-bright: #cc90ff;
-  --red-glow:   rgba(170,85,255,0.30);
-  --bg-root:    #1e0a3d;
-  --bg-dark:    #28104f;
-  --bg-card:    #341562;
-  --bg-card2:   #3d1a73;
-  --bg-hover:   #482085;
-  --border:     rgba(170,85,255,0.25);
-  --border-lg:  rgba(170,85,255,0.50);
-  --shadow-red: 0 0 20px rgba(170,85,255,0.30);
-  --text-primary:   #f8f0ff;
-  --text-secondary: rgba(248,240,255,0.70);
-  --text-muted:     rgba(248,240,255,0.40);
-}
+    :root {
+      --red-deep: #6a1aaa;
+      --red-mid: #8a2ecc;
+      --red-main: #aa55ff;
+      --red-bright: #cc90ff;
+      --red-glow: rgba(170, 85, 255, 0.30);
+      --bg-root: #1e0a3d;
+      --bg-dark: #28104f;
+      --bg-card: #341562;
+      --bg-card2: #3d1a73;
+      --bg-hover: #482085;
+      --border: rgba(170, 85, 255, 0.25);
+      --border-lg: rgba(170, 85, 255, 0.50);
+      --shadow-red: 0 0 20px rgba(170, 85, 255, 0.30);
+      --text-primary: #f8f0ff;
+      --text-secondary: rgba(248, 240, 255, 0.70);
+      --text-muted: rgba(248, 240, 255, 0.40);
+    }
   </style>
 </head>
+
 <body>
 
-<!-- Overlay da sidebar -->
-<div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <!-- Overlay da sidebar -->
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
 
-<!-- Menu lateral -->
-<nav id="sidebar" class="sidebar">
-  <span class="sidebar-label">Navegação</span>
-  <a href="/index.html">
-    <svg class="icone-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1V15a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4.5a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1V10"/></svg>
-    Início
-  </a>
-  <a href="/cardapio/index.html">
-    <svg class="icone-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v18"/><path d="M4 3v6.5a2.5 2.5 0 0 0 5 0V3"/><path d="M17 3c-1.8 0-3 2-3 5.5S15.2 14 17 14v7"/></svg>
-    Cardápio
-  </a>
-  <a href="https://www.siepe.educacao.pe.gov.br/" target="_blank">
-    <svg class="icone-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M4 20h16"/></svg>
-    Notas (SIEPE)
-  </a>
+  <!-- Menu lateral -->
+  <nav id="sidebar" class="sidebar">
+    <span class="sidebar-label">Navegação</span>
+    <a href="/index.html">
+      <svg class="icone-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 11.5 12 4l9 7.5" />
+        <path
+          d="M5.5 10v9.5a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1V15a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4.5a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1V10" />
+      </svg>
+      Início
+    </a>
+    <a href="/cardapio/index.html">
+      <svg class="icone-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 3v18" />
+        <path d="M4 3v6.5a2.5 2.5 0 0 0 5 0V3" />
+        <path d="M17 3c-1.8 0-3 2-3 5.5S15.2 14 17 14v7" />
+      </svg>
+      Cardápio
+    </a>
+    <a href="https://www.siepe.educacao.pe.gov.br/" target="_blank">
+      <svg class="icone-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 20V10" />
+        <path d="M10 20V4" />
+        <path d="M16 20v-7" />
+        <path d="M4 20h16" />
+      </svg>
+      Notas (SIEPE)
+    </a>
 
-  <div class="sidebar-divider"></div>
-  <span class="sidebar-label">Informações</span>
-  <a href="/sobre/sobre.html">
-    <svg class="icone-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><circle cx="12" cy="8" r="0.6" fill="currentColor" stroke="none"/></svg>
-    Sobre o site
-  </a>
-</nav>
+    <a href="https://enemplanner.vercel.app/" target="_blank">
+      <svg class="icone-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+      </svg>
+      Enem
+    </a>
 
-<!-- Modal de login -->
-<div id="tela-login" class="login-overlay hidden">
-  <div class="login-box">
-    <div class="login-header">
-      <span class="login-icon">🔐</span>
-      <h2>Acesso Restrito</h2>
-      <p class="login-sub">Entre com as credenciais desta turma</p>
-    </div>
+    <div class="sidebar-divider"></div>
+    <span class="sidebar-label">Informações</span>
+    <a href="/sobre/sobre.html">
+      <svg class="icone-nav" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 11v5.5" />
+        <circle cx="12" cy="8" r="0.6" fill="currentColor" stroke="none" />
+      </svg>
+      Sobre o site
+    </a>
+  </nav>
 
-    <div class="input-group">
-      <label for="login-email">Email da turma</label>
-      <input type="email" id="login-email" placeholder="turma@erempaf.com" />
-    </div>
-
-    <div class="input-group">
-      <label for="login-senha">Senha</label>
-      <input type="password" id="login-senha" placeholder="••••••••" />
-    </div>
-
-    <button id="btn-login">Entrar</button>
-    <p class="login-erro" id="login-erro"></p>
-  </div>
-</div>
-
-<!-- Header principal -->
-<header class="topo">
-  <button id="menuBtn" class="menu-btn" title="Menu">☰</button>
-
-  <div>
-    <div class="breadcrumb">EREMPAF / Calendário</div>
-    <h1 id="titulo-turma">1º Ano F</h1>
-  </div>
-
-  <div class="topo-acoes">
-    <button id="btn-login-topo" style="display:none">🔓 Entrar</button>
-    <button id="btn-editar" disabled>✏️ Editar</button>
-    <button id="btn-salvar" hidden>💾 Salvar</button>
-  </div>
-</header>
-
-<!-- Avisos importantes -->
-<section class="avisos">
-  <div class="avisos-header">
-    <h2>📌 Avisos do Mês</h2>
-  </div>
-  <textarea
-    id="campo-avisos"
-    placeholder="Nenhum aviso por enquanto..."
-    disabled
-  ></textarea>
-</section>
-
-<!-- Controle de mês -->
-<div class="controle-mes">
-  <button id="mes-anterior" title="Mês anterior">◀</button>
-  <span id="mes-ano"></span>
-  <button id="mes-proximo" title="Próximo mês">▶</button>
-</div>
-
-<!-- Calendário -->
-<main>
-  <div class="calendario-wrap">
-    <div class="calendario">
-      <div class="cabecalho">
-        <span>Seg</span>
-        <span>Ter</span>
-        <span>Qua</span>
-        <span>Qui</span>
-        <span>Sex</span>
+  <!-- Modal de login -->
+  <div id="tela-login" class="login-overlay hidden">
+    <div class="login-box">
+      <div class="login-header">
+        <span class="login-icon">🔐</span>
+        <h2>Acesso Restrito</h2>
+        <p class="login-sub">Entre com as credenciais desta turma</p>
       </div>
-      <div id="dias" class="dias"></div>
+
+      <div class="input-group">
+        <label for="login-email">Email da turma</label>
+        <input type="email" id="login-email" placeholder="turma@erempaf.com" />
+      </div>
+
+      <div class="input-group">
+        <label for="login-senha">Senha</label>
+        <input type="password" id="login-senha" placeholder="••••••••" />
+      </div>
+
+      <button id="btn-login">Entrar</button>
+      <p class="login-erro" id="login-erro"></p>
     </div>
   </div>
-</main>
 
-<!-- Painel de detalhes do dia -->
-<div id="painel-detalhes" class="painel-detalhes hidden">
-  <div class="painel-conteudo">
+  <!-- Header principal -->
+  <header class="topo">
+    <button id="menuBtn" class="menu-btn" title="Menu">☰</button>
 
-    <div class="painel-header">
-      <div class="painel-header-left">
-        <span class="painel-kicker">📅 Detalhes do Dia</span>
-        <h2 id="titulo-detalhes">—</h2>
-        <span class="painel-dia-semana" id="painel-dia-semana"></span>
-      </div>
-      <button class="btn-fechar-painel" id="fechar-detalhes" title="Fechar">✕</button>
+    <div>
+      <div class="breadcrumb">EREMPAF / Calendário</div>
+      <h1 id="titulo-turma">1º Ano F</h1>
     </div>
 
-    <div class="painel-tabs">
-      <button class="tab-btn active" data-tab="anotacoes">📝 Anotações</button>
-      <button class="tab-btn" data-tab="materias">📚 Matérias</button>
-      <button class="tab-btn" data-tab="fotos">📷 Fotos</button>
-      <button class="tab-btn" data-tab="info">📊 Info</button>
+    <div class="topo-acoes">
+      <button id="btn-login-topo" style="display:none">🔓 Entrar</button>
+      <button id="btn-editar" disabled>✏️ Editar</button>
+      <button id="btn-salvar" hidden>💾 Salvar</button>
     </div>
+  </header>
 
-    <div class="painel-body">
+  <!-- Avisos importantes -->
+  <section class="avisos">
+    <div class="avisos-header">
+      <h2>📌 Avisos do Mês</h2>
+    </div>
+    <textarea id="campo-avisos" placeholder="Nenhum aviso por enquanto..." disabled></textarea>
+  </section>
 
-      <div id="tab-anotacoes" class="tab-content active">
-        <div>
-          <p class="anotacao-label">Anotações do dia</p>
-          <textarea
-            id="campo-detalhes"
-            placeholder="Adicione aqui tarefas, lembretes, atividades, provas ou qualquer informação importante para este dia..."
-            disabled
-          ></textarea>
+  <!-- Controle de mês -->
+  <div class="controle-mes">
+    <button id="mes-anterior" title="Mês anterior">◀</button>
+    <span id="mes-ano"></span>
+    <button id="mes-proximo" title="Próximo mês">▶</button>
+  </div>
+
+  <!-- Calendário -->
+  <main>
+    <div class="calendario-wrap">
+      <div class="calendario">
+        <div class="cabecalho">
+          <span>Seg</span>
+          <span>Ter</span>
+          <span>Qua</span>
+          <span>Qui</span>
+          <span>Sex</span>
         </div>
-        <div id="blocos-materias"></div>
+        <div id="dias" class="dias"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Painel de detalhes do dia -->
+  <div id="painel-detalhes" class="painel-detalhes hidden">
+    <div class="painel-conteudo">
+
+      <div class="painel-header">
+        <div class="painel-header-left">
+          <span class="painel-kicker">📅 Detalhes do Dia</span>
+          <h2 id="titulo-detalhes">—</h2>
+          <span class="painel-dia-semana" id="painel-dia-semana"></span>
+        </div>
+        <button class="btn-fechar-painel" id="fechar-detalhes" title="Fechar">✕</button>
       </div>
 
-      <div id="tab-materias" class="tab-content">
-        <p class="anotacao-label">Marque as matérias com atividade hoje</p>
-        <div class="materias-grid" id="materias-grid"></div>
+      <div class="painel-tabs">
+        <button class="tab-btn active" data-tab="anotacoes">📝 Anotações</button>
+        <button class="tab-btn" data-tab="materias">📚 Matérias</button>
+        <button class="tab-btn" data-tab="fotos">📷 Fotos</button>
+        <button class="tab-btn" data-tab="info">📊 Info</button>
       </div>
 
-      <div id="tab-fotos" class="tab-content"></div>
+      <div class="painel-body">
 
-      <div id="tab-info" class="tab-content">
-        <p class="anotacao-label">Informações do dia</p>
-        <div class="dia-info-stats">
-          <div class="stat-card">
-            <div class="stat-num" id="stat-dias">—</div>
-            <div class="stat-label">Dias até hoje</div>
+        <div id="tab-anotacoes" class="tab-content active">
+          <div>
+            <p class="anotacao-label">Anotações do dia</p>
+            <textarea id="campo-detalhes"
+              placeholder="Adicione aqui tarefas, lembretes, atividades, provas ou qualquer informação importante para este dia..."
+              disabled></textarea>
           </div>
-          <div class="stat-card">
-            <div class="stat-num" id="stat-materias">0</div>
-            <div class="stat-label">Matérias marcadas</div>
+          <div id="blocos-materias"></div>
+        </div>
+
+        <div id="tab-materias" class="tab-content">
+          <p class="anotacao-label">Marque as matérias com atividade hoje</p>
+          <div class="materias-grid" id="materias-grid"></div>
+        </div>
+
+        <div id="tab-fotos" class="tab-content"></div>
+
+        <div id="tab-info" class="tab-content">
+          <p class="anotacao-label">Informações do dia</p>
+          <div class="dia-info-stats">
+            <div class="stat-card">
+              <div class="stat-num" id="stat-dias">—</div>
+              <div class="stat-label">Dias até hoje</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" id="stat-materias">0</div>
+              <div class="stat-label">Matérias marcadas</div>
+            </div>
           </div>
         </div>
+
+      </div>
+
+      <div class="painel-footer">
+        <button class="btn-painel btn-painel-fechar" id="btn-painel-fechar">Fechar</button>
+        <button class="btn-painel btn-painel-salvar" id="btn-painel-salvar" hidden>💾 Salvar</button>
       </div>
 
     </div>
-
-    <div class="painel-footer">
-      <button class="btn-painel btn-painel-fechar" id="btn-painel-fechar">Fechar</button>
-      <button class="btn-painel btn-painel-salvar" id="btn-painel-salvar" hidden>💾 Salvar</button>
-    </div>
-
   </div>
-</div>
 
-<!-- Modal senha de edição -->
-<div id="modal-senha-edicao" class="login-overlay hidden">
-  <div class="login-box">
-    <div class="login-header">
-      <span class="login-icon">✏️</span>
-      <h2>Modo Edição</h2>
-      <p class="login-sub">Digite a senha para editar esta turma</p>
+  <!-- Modal senha de edição -->
+  <div id="modal-senha-edicao" class="login-overlay hidden">
+    <div class="login-box">
+      <div class="login-header">
+        <span class="login-icon">✏️</span>
+        <h2>Modo Edição</h2>
+        <p class="login-sub">Digite a senha para editar esta turma</p>
+      </div>
+      <div class="input-group">
+        <label for="senha-edicao-input">Senha</label>
+        <input type="password" id="senha-edicao-input" placeholder="••••••••" />
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button id="btn-cancelar-senha-edicao"
+          style="flex:1;padding:12px;background:transparent;border:1px solid var(--border-lg);color:var(--text-secondary);border-radius:var(--radius-md);cursor:pointer;font-family:var(--font-main);font-size:14px;">Cancelar</button>
+        <button id="btn-confirmar-senha-edicao"
+          style="flex:2;padding:12px;background:var(--red-main);border:none;color:white;border-radius:var(--radius-md);cursor:pointer;font-family:var(--font-main);font-size:14px;font-weight:700;">Entrar</button>
+      </div>
+      <p class="login-erro" id="senha-edicao-erro"></p>
     </div>
-    <div class="input-group">
-      <label for="senha-edicao-input">Senha</label>
-      <input type="password" id="senha-edicao-input" placeholder="••••••••" />
-    </div>
-    <div style="display:flex;gap:8px;">
-      <button id="btn-cancelar-senha-edicao" style="flex:1;padding:12px;background:transparent;border:1px solid var(--border-lg);color:var(--text-secondary);border-radius:var(--radius-md);cursor:pointer;font-family:var(--font-main);font-size:14px;">Cancelar</button>
-      <button id="btn-confirmar-senha-edicao" style="flex:2;padding:12px;background:var(--red-main);border:none;color:white;border-radius:var(--radius-md);cursor:pointer;font-family:var(--font-main);font-size:14px;font-weight:700;">Entrar</button>
-    </div>
-    <p class="login-erro" id="senha-edicao-erro"></p>
   </div>
-</div>
 
-<!-- Toast container -->
-<div class="toast-container" id="toast-container"></div>
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
 
-<!-- Scripts Firebase -->
-<script>
-  const SERIE = "1ano";
-  const TURMA = "f";
-  const SALA_ID = `${SERIE}-${TURMA}`;
-</script>
+  <!-- Scripts Firebase -->
+  <script>
+    const SERIE = "1ano";
+    const TURMA = "f";
+    const SALA_ID = `${SERIE}-${TURMA}`;
+  </script>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDgMBfsuR66vQiz5hG5F2OkhiTE_H1ZCTk",
-    authDomain: "portal-erempaf.firebaseapp.com",
-    projectId: "portal-erempaf",
-    storageBucket: "portal-erempaf.firebasestorage.app",
-    messagingSenderId: "124907592592",
-    appId: "1:124907592592:web:a9de2e6959a768c7d4b115"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyDgMBfsuR66vQiz5hG5F2OkhiTE_H1ZCTk",
+      authDomain: "portal-erempaf.firebaseapp.com",
+      projectId: "portal-erempaf",
+      storageBucket: "portal-erempaf.firebasestorage.app",
+      messagingSenderId: "124907592592",
+      appId: "1:124907592592:web:a9de2e6959a768c7d4b115"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  window.auth = getAuth(app);
-  window.db   = getFirestore(app);
-  window.usuarioLogado = undefined;
+    const app = initializeApp(firebaseConfig);
+    window.auth = getAuth(app);
+    window.db = getFirestore(app);
+    window.usuarioLogado = undefined;
 
-  onAuthStateChanged(window.auth, (user) => {
-    window.usuarioLogado = user || null;
+    onAuthStateChanged(window.auth, (user) => {
+      window.usuarioLogado = user || null;
 
-    const btnLoginTopo = document.getElementById("btn-login-topo");
-    const btnEditar    = document.getElementById("btn-editar");
+      const btnLoginTopo = document.getElementById("btn-login-topo");
+      const btnEditar = document.getElementById("btn-editar");
 
-    if (user) {
-      if (btnLoginTopo) btnLoginTopo.style.display = "none";
-      if (btnEditar) btnEditar.disabled = false;
-      if (window.carregarCalendario) window.carregarCalendario();
-    } else {
-      if (btnLoginTopo) btnLoginTopo.style.display = "inline-flex";
-      if (btnEditar) btnEditar.disabled = true;
-    }
-  });
-</script>
+      if (user) {
+        if (btnLoginTopo) btnLoginTopo.style.display = "none";
+        if (btnEditar) btnEditar.disabled = false;
+        if (window.carregarCalendario) window.carregarCalendario();
+      } else {
+        if (btnLoginTopo) btnLoginTopo.style.display = "inline-flex";
+        if (btnEditar) btnEditar.disabled = true;
+      }
+    });
+  </script>
 
-<script type="module" src="/series/calendario.js"></script>
+  <script type="module" src="/series/calendario.js"></script>
 
 </body>
+
 </html>
