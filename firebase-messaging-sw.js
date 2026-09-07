@@ -22,7 +22,6 @@ firebase.initializeApp({
     apiKey: "AIzaSyDgMBfsuR66vQiz5hG5F2OkhiTE_H1ZCTk",
     authDomain: "portal-erempaf.firebaseapp.com",
     projectId: "portal-erempaf",
-    storageBucket: "portal-erempaf.firebasestorage.app",
     messagingSenderId: "124907592592",
     appId: "1:124907592592:web:a9de2e6959a768c7d4b115"
 });

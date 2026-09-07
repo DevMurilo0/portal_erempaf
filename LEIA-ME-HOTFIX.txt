@@ -1,9 +1,0 @@
-HOTFIX — edição por senha da sala
-
-- O login continua sendo a conta da própria turma.
-- O login sozinho NÃO libera edição.
-- Ao clicar em Editar, o Portal pede a senha de edição da turma.
-- A senha é validada no backend e comparada com /salas/{turma}.senha.
-- O navegador não lê o documento que contém a senha.
-- O calendário é salvo pelo backend com Firebase Admin.
-- Firestore Rules permitem leitura para a conta correta, mas bloqueiam escrita direta do navegador.
