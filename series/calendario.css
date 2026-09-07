@@ -1701,11 +1701,13 @@ body { overflow-x: hidden; }
 .materia-bloco-header { width: 100%; }
 :focus-visible { outline: 3px solid var(--red-bright, #ffdc80); outline-offset: 3px; }
 @media (max-width: 600px) {
-  .calendario-wrap { overflow: visible; }
-  .calendario { min-width: 0; }
+  .calendario-wrap { overflow: visible; width: 100%; }
+  /* No desktop .calendario é grid de 5 colunas e .dias usa display:contents.
+     No celular .dias vira uma agenda vertical, então o pai também precisa sair do grid. */
+  .calendario { display: block; min-width: 0; width: 100%; }
   .calendario .cabecalho, .dias .dia.vazio { display: none; }
-  .calendario .dias { display: flex; flex-direction: column; gap: 10px; }
-  .dias .dia { width: 100%; min-height: 95px; padding: 12px; }
+  .calendario .dias { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  .dias .dia { width: 100%; min-height: 95px; padding: 12px; box-sizing: border-box; }
   .dia-semana-mobile { display: inline; font-size: 14px; margin-right: auto; }
   .dias .numero { font-size: 20px; }
   .dias .dia-chips { display: flex; flex-wrap: wrap; gap: 6px; }

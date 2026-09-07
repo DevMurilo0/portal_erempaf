@@ -88,6 +88,7 @@ test('login das turmas é obrigatório, persistente e sem Entrar/Sair no topo', 
   assert.doesNotMatch(calendar,/btn-login-topo|\blogout\b|modal-senha-edicao/);
   assert.match(rules,/1anoa@erempaf[.]com/);
   assert.match(rules,/3anoe@erempaf[.]com/);
+  assert.match(rules,/allow read: if editor\(sala\)/);
   assert.doesNotMatch(rules,/1anof@erempaf[.]com|3anof@erempaf[.]com/);
   for (const t of TURMAS) {
     const html = readFileSync('.'+t.path,'utf8');

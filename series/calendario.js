@@ -112,44 +112,49 @@ const materiasGrid = document.getElementById("materias-grid");
    AUTENTICAÇÃO — LOGIN DA TURMA
 ────────────────────────────────────────────── */
 
-function abrirModalLogin() {
-  const estavaFechado = telaLogin.classList.contains("hidden");
-
+function abrirModalLogin(mensagem = "") {
+  // O Firebase pode emitir mais de uma atualização de sessão enquanto a pessoa digita.
+  // Mostrar o modal não deve apagar os campos já preenchidos.
+  if (erroLogin) erroLogin.textContent = mensagem;
   telaLogin.classList.remove("hidden");
-
-  // Se o Firebase repetir o estado "deslogado", não apaga
-  // o que a pessoa já começou a digitar.
-  if (!estavaFechado) return;
-
-  if (emailInput) emailInput.value = "";
-  if (senhaInput) senhaInput.value = "";
-  if (erroLogin) erroLogin.textContent = "";
-
   setTimeout(() => emailInput?.focus(), 100);
 }
 
 function fecharModalLogin() {
   telaLogin.classList.add("hidden");
-
-  // Não deixa a senha digitada guardada no campo escondido.
   if (senhaInput) senhaInput.value = "";
   if (erroLogin) erroLogin.textContent = "";
 }
 
 let claimsAtuais = {};
-observeSession(({ user, claims }) => {
+observeSession(({user, claims}) => {
   const uidAnterior = window.usuarioLogado?.uid;
   const changed = uidAnterior !== user?.uid;
   if (changed && uidAnterior) descartarAlteracoesFotosLocais();
   window.usuarioLogado = user;
   claimsAtuais = claims;
-  if (changed || !canEdit(SALA_ID, claims)) modoEdicao = false;
-  atualizarModoEdicao();
+
+  // Uma sessão Firebase é global para o domínio, mas cada página de turma só aceita
+  // a conta daquela própria turma (ou uma claim administrativa explícita).
   const permitido = canEdit(SALA_ID, claims, user);
+  if (changed || !permitido) modoEdicao = false;
+  atualizarModoEdicao();
   btnEditar.disabled = !permitido;
-  btnEditar.title = permitido ? 'Editar calendário' : 'Esta conta não pode editar esta turma';
-  if (user) { fecharModalLogin(); if (changed || !loaded) carregarCalendario(); }
-  else { estadoMaterias = {}; estadoDetalhes = {}; estadoFotos = {}; campoAvisos.value = ''; renderizarCalendario(); abrirModalLogin(); }
+  btnEditar.title = permitido ? 'Editar calendário' : 'Entre com a conta desta turma';
+
+  if (user && permitido) {
+    fecharModalLogin();
+    if (changed || !loaded) carregarCalendario();
+    return;
+  }
+
+  // Não deixa conteúdo de outra turma visível quando a conta atual não pertence à sala.
+  estadoMaterias = {};
+  estadoDetalhes = {};
+  estadoFotos = {};
+  campoAvisos.value = '';
+  renderizarCalendario();
+  abrirModalLogin(user ? 'Entre com o email e a senha desta turma.' : '');
 });
 
 // Submit do login
@@ -301,7 +306,7 @@ function renderizarCalendario() {
 
       div.innerHTML = `
         <div class="topo-dia">
-          <span class="numero">${dia}</span><span class="dia-semana-mobile">${data.toLocaleDateString("pt-BR", { weekday: "long" })}</span>
+          <span class="numero">${dia}</span><span class="dia-semana-mobile">${data.toLocaleDateString("pt-BR", {weekday:"long"})}</span>
           <span class="dia-dot" title="Este dia tem anotação ou matéria marcada"></span>
           <span class="hoje-badge">hoje</span>
           <button class="btn-detalhes" data-dia="${dataISO}" aria-label="Ver detalhes de ${dia} de ${mesAnoSpan.textContent}" title="Ver detalhes do dia">＋</button>

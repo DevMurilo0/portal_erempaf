@@ -17,7 +17,10 @@ test('calendário: só conta da própria turma ou claim explícita escreve',asyn
  await assertFails(setDoc(doc(db('conta-f',{email:'1anof@erempaf.com'}),'salas/1ano-f/calendario/2026-10'),data));
  const editor=db('editor',{editorTurmas:['1ano-a']});
  await assertSucceeds(setDoc(doc(editor,month),data));
- await assertSucceeds(getDoc(doc(db('aluno'),month)));
+ await assertFails(getDoc(doc(db('aluno'),month)));
+ await assertFails(getDoc(doc(db('outra-turma',{email:'1anob@erempaf.com'}),month)));
+ await assertSucceeds(getDoc(doc(contaTurma,'salas/1ano-a/calendario/2026-10')));
+ await assertSucceeds(getDoc(doc(editor,month)));
  await assertFails(getDoc(doc(db(null),month)));
  await assertFails(updateDoc(doc(editor,month),{role:'admin'}));
  await assertFails(updateDoc(doc(editor,month),{avisos:42}));

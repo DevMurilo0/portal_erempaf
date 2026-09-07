@@ -176,7 +176,7 @@ service cloud.firestore {
         && d.revision == old.get('revision', 0) + 1;
     }
     match /salas/{sala}/calendario/{mes} {
-      allow read: if signedIn(); // preserva a leitura autenticada que já existia
+      allow read: if editor(sala); // cada turma só é lida pela própria conta ou por claim administrativa
       allow create: if editor(sala) && mes.matches('^[0-9]{4}-(0[1-9]|1[0-2])$') && validCalendarBase()
         && validMonthKeys(request.resource.data.get('detalhes', {}).keys().toSet()
           .union(request.resource.data.get('materias', {}).keys().toSet())
