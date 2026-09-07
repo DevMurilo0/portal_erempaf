@@ -1,4 +1,4 @@
-import { auth, db, observeSession, canEdit, requireEditor, login } from '../shared/firebase.js';
+import { auth, db, observeSession, canEdit, login } from '../shared/firebase.js';
 import { TURMAS } from '../config/turmas.js';
 import { escapeHtml, normalizedPhoto, photoSource, stableJson } from '../shared/content.js';
 import { compressPhoto } from '../shared/photos.js';
@@ -12,11 +12,7 @@ window.auth = auth;
 
 import {
   doc,
-  setDoc,
-  runTransaction,
-  getDoc,
-  getDocFromServer,
-  deleteField
+  getDocFromServer
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { initNotificacoes } from "./notificacoes.js";
@@ -46,6 +42,8 @@ let estadoFotos = {}; // { "2026-06-10": ["base64...", "base64..."] }
 let tabAtiva = "anotacoes";
 let dataAtual = new Date();
 let salvamentoEmAndamento = false;
+let senhaEdicaoTurma = ''; // fica só em memória; a senha real continua em /salas/{turma}.senha
+const CALENDARIO_BACKEND_URL = 'https://erempafbackend.netlify.app/.netlify/functions/calendario';
 
 // Fila de fotos aguardando descrição. As imagens voltaram a ser salvas em Base64 no Firestore.
 let _filaPendente = [];
@@ -137,7 +135,7 @@ observeSession(({user, claims}) => {
   // Uma sessão Firebase é global para o domínio, mas cada página de turma só aceita
   // a conta daquela própria turma (ou uma claim administrativa explícita).
   const permitido = canEdit(SALA_ID, claims, user);
-  if (changed || !permitido) modoEdicao = false;
+  if (changed || !permitido) { modoEdicao = false; senhaEdicaoTurma = ''; }
   atualizarModoEdicao();
   btnEditar.disabled = !permitido;
   btnEditar.title = permitido ? 'Editar calendário' : 'Entre com a conta desta turma';
@@ -187,19 +185,104 @@ emailInput.addEventListener("keydown", (e) => {
 });
 
 /* ──────────────────────────────────────────────
-   MODO EDIÇÃO — CONTA AUTORIZADA
+   MODO EDIÇÃO — SENHA DA SALA
 ────────────────────────────────────────────── */
 
-// A confirmação visual permanece; a autorização vem do token e das Rules.
+function garantirModalSenhaEdicao() {
+  let modal = document.getElementById('modal-senha-edicao');
+  if (modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'modal-senha-edicao';
+  modal.className = 'login-overlay hidden';
+  modal.innerHTML = `
+    <div class="login-box" role="dialog" aria-modal="true" aria-labelledby="titulo-senha-edicao">
+      <div class="login-header">
+        <span class="login-icon">✎</span>
+        <h2 id="titulo-senha-edicao">Senha de edição</h2>
+        <p class="login-sub">Digite a senha de edição desta turma.</p>
+      </div>
+      <div class="input-group">
+        <label for="senha-edicao-turma">Senha</label>
+        <input id="senha-edicao-turma" type="password" autocomplete="off" placeholder="••••••" />
+      </div>
+      <p class="login-erro" id="erro-senha-edicao"></p>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button type="button" id="cancelar-senha-edicao" style="padding:12px 16px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text-primary);cursor:pointer">Cancelar</button>
+        <button type="button" id="confirmar-senha-edicao" style="padding:12px 16px;border-radius:10px;border:0;background:var(--red-main);color:#fff;font-weight:700;cursor:pointer">Editar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  const input = modal.querySelector('#senha-edicao-turma');
+  const erro = modal.querySelector('#erro-senha-edicao');
+  const fechar = () => {
+    modal.classList.add('hidden');
+    input.value = '';
+    erro.textContent = '';
+  };
+  modal.querySelector('#cancelar-senha-edicao').addEventListener('click', fechar);
+  modal.addEventListener('click', e => { if (e.target === modal) fechar(); });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Escape') fechar();
+    if (e.key === 'Enter') modal.querySelector('#confirmar-senha-edicao').click();
+  });
+  return modal;
+}
+
+async function chamarBackendCalendario(body) {
+  const user = auth.currentUser;
+  if (!user || !canEdit(SALA_ID, claimsAtuais, user)) throw new Error('Entre com a conta desta turma.');
+  const token = await user.getIdToken();
+  const response = await fetch(CALENDARIO_BACKEND_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body)
+  });
+  let data = {};
+  try { data = await response.json(); } catch {}
+  if (!response.ok) {
+    const error = new Error(data.error || 'Não foi possível concluir a operação.');
+    error.status = response.status;
+    throw error;
+  }
+  return data;
+}
+
 btnEditar.addEventListener('click', async () => {
-  try {
-    await requireEditor(SALA_ID);
-    modoEdicao = true;
-    window._snapshotMaterias = structuredClone(estadoMaterias);
-    atualizarModoEdicao();
-    if (diaDetalheAtual) renderizarMaterias(diaDetalheAtual);
-    mostrarToast('Modo de edição ativado.', 'info');
-  } catch (e) { mostrarToast(e.message, 'error'); }
+  if (!auth.currentUser || !canEdit(SALA_ID, claimsAtuais, auth.currentUser)) {
+    mostrarToast('Entre com a conta desta turma.', 'error');
+    return;
+  }
+
+  const modal = garantirModalSenhaEdicao();
+  const input = modal.querySelector('#senha-edicao-turma');
+  const erro = modal.querySelector('#erro-senha-edicao');
+  const confirmar = modal.querySelector('#confirmar-senha-edicao');
+  modal.classList.remove('hidden');
+  input.value = '';
+  erro.textContent = '';
+  setTimeout(() => input.focus(), 50);
+
+  confirmar.onclick = async () => {
+    const senha = input.value;
+    if (!senha) { erro.textContent = 'Digite a senha de edição.'; return; }
+    confirmar.disabled = true;
+    erro.textContent = '';
+    try {
+      await chamarBackendCalendario({ operation: 'verify', turma: SALA_ID, password: senha });
+      senhaEdicaoTurma = senha;
+      modal.classList.add('hidden');
+      input.value = '';
+      modoEdicao = true;
+      window._snapshotMaterias = structuredClone(estadoMaterias);
+      atualizarModoEdicao();
+      if (diaDetalheAtual) renderizarMaterias(diaDetalheAtual);
+      mostrarToast('Modo de edição ativado.', 'info');
+    } catch (e) {
+      erro.textContent = e.status === 401 ? 'Senha de edição incorreta.' : e.message;
+    } finally { confirmar.disabled = false; }
+  };
 });
 
 btnSalvar.addEventListener("click", async () => {
@@ -213,6 +296,7 @@ btnSalvar.addEventListener("click", async () => {
     return;
   }
   modoEdicao = false;
+  senhaEdicaoTurma = '';
   atualizarModoEdicao();
   renderizarCalendario();
 });
@@ -873,7 +957,8 @@ let loaded = null;
 let loadSequence = 0;
 async function salvarCalendario() {
   if (salvamentoEmAndamento) return false;
-  await requireEditor(SALA_ID);
+  if (!auth.currentUser || !canEdit(SALA_ID, claimsAtuais, auth.currentUser)) throw new Error('Entre com a conta desta turma.');
+  if (!senhaEdicaoTurma) throw new Error('Digite a senha de edição desta turma.');
   if (!modoEdicao || !loaded || loaded.month !== mesAnoKey()) throw new Error('Carregue o mês antes de salvar.');
   validarLimitesDeAlteracaoDasRules();
   salvamentoEmAndamento = true;
@@ -882,22 +967,40 @@ async function salvarCalendario() {
   controls.forEach(el => el.disabled = true);
   try {
     const month = mesAnoKey();
+    const baseRevision = Number.isInteger(loaded.data.revision) ? loaded.data.revision : 0;
     const payload = {
+      operation: 'save-month',
+      turma: SALA_ID,
+      password: senhaEdicaoTurma,
+      month,
+      baseRevision,
       avisos: campoAvisos.value.trim(),
       detalhes: structuredClone(estadoDetalhes),
       materias: structuredClone(estadoMaterias),
-      fotos: structuredClone(estadoFotos),
-      revision: (loaded.data.revision || 0) + 1
+      fotos: structuredClone(estadoFotos)
     };
-    const reference = doc(db, 'salas', SALA_ID, 'calendario', month);
-    await runTransaction(db, async tx => {
-      const snap = await tx.get(reference);
-      const remote = snap.exists() ? snap.data() : {};
-      if (stableJson(remote) !== stableJson(loaded.data)) throw new Error('Outra pessoa alterou este mês. Recarregue e confira antes de salvar.');
-      // Preserva campos legados desconhecidos e substitui mapas inteiros para permitir remoções.
-      tx.set(reference, { ...remote, ...payload });
-    });
-    loaded.data = { ...loaded.data, ...payload };
+
+    let result;
+    try {
+      result = await chamarBackendCalendario(payload);
+    } catch (e) {
+      if (e.status === 401) {
+        senhaEdicaoTurma = '';
+        throw new Error('Senha de edição incorreta ou alterada. Clique em Editar e digite a senha novamente.');
+      }
+      throw e;
+    }
+
+    const revision = Number.isInteger(result.revision) ? result.revision : baseRevision + 1;
+    loaded.data = {
+      ...loaded.data,
+      avisos: payload.avisos,
+      detalhes: structuredClone(payload.detalhes),
+      materias: structuredClone(payload.materias),
+      fotos: structuredClone(payload.fotos),
+      revision
+    };
+
     const events = detectarNovosEventos();
     window._snapshotMaterias = structuredClone(estadoMaterias);
     if (events.length && window.notificarNovosEventos) {
@@ -942,7 +1045,7 @@ window.carregarCalendario = carregarCalendario;
 async function mudarMes(delta) {
   if (salvamentoEmAndamento) return;
   if (modoEdicao && !confirm('Mudar de mês e descartar alterações não salvas?')) return;
-  modoEdicao = false; fecharPainel();
+  modoEdicao = false; senhaEdicaoTurma = ''; fecharPainel();
   descartarAlteracoesFotosLocais();
   dataAtual = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + delta, 1);
   estadoMaterias = {}; estadoDetalhes = {}; estadoFotos = {}; campoAvisos.value = '';

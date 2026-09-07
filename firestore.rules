@@ -176,19 +176,11 @@ service cloud.firestore {
         && d.revision == old.get('revision', 0) + 1;
     }
     match /salas/{sala}/calendario/{mes} {
-      allow read: if editor(sala); // cada turma só é lida pela própria conta ou por claim administrativa
-      allow create: if editor(sala) && mes.matches('^[0-9]{4}-(0[1-9]|1[0-2])$') && validCalendarBase()
-        && validMonthKeys(request.resource.data.get('detalhes', {}).keys().toSet()
-          .union(request.resource.data.get('materias', {}).keys().toSet())
-          .union(request.resource.data.get('fotos', {}).keys().toSet()), mes)
-        && validDetails(request.resource.data.get('detalhes', {}), request.resource.data.get('detalhes', {}).keys(), mes)
-        && validSubjectDays(request.resource.data.get('materias', {}), request.resource.data.get('materias', {}).keys(), mes)
-        && validPhotoDays(request.resource.data.get('fotos', {}), request.resource.data.get('fotos', {}).keys(), sala, mes)
-        && request.resource.data.revision == 1
-        && request.resource.data.keys().hasOnly(['avisos','detalhes','materias','fotos','revision']);
-      allow update: if editor(sala) && mes.matches('^[0-9]{4}-(0[1-9]|1[0-2])$')
-        && validCalendarBase() && validCalendarUpdate(sala, mes);
-      allow delete: if false;
+      // A conta correta da turma (ou claim administrativa) pode ler.
+      // Escritas do calendário agora passam pelo backend, que também exige a senha
+      // guardada em /salas/{sala}.senha. Assim o login sozinho NÃO libera edição.
+      allow read: if editor(sala);
+      allow create, update, delete: if false;
     }
     // Documento raiz contém senha legada: não deve ser lido pelo navegador.
     match /salas/{sala} { allow read, write: if false; }

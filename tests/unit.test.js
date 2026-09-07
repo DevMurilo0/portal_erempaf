@@ -79,16 +79,21 @@ test('cardápio usa backend por senha e não mantém o modelo Firebase Auth anti
   }
 });
 
-test('login das turmas é obrigatório, persistente e sem Entrar/Sair no topo', () => {
+test('login das turmas é obrigatório e edição exige a senha da sala via backend', () => {
   const firebase = readFileSync('shared/firebase.js','utf8');
   const calendar = readFileSync('series/calendario.js','utf8');
   const rules = readFileSync('firestore.rules','utf8');
   assert.match(firebase,/browserLocalPersistence/);
   assert.match(firebase,/\^\[123\]ano-\[a-e\]\$/);
-  assert.doesNotMatch(calendar,/btn-login-topo|\blogout\b|modal-senha-edicao/);
+  assert.doesNotMatch(calendar,/btn-login-topo|\blogout\b/);
+  assert.match(calendar,/modal-senha-edicao/);
+  assert.match(calendar,/\.netlify\/functions\/calendario/);
+  assert.match(calendar,/operation: 'verify'/);
+  assert.match(calendar,/operation: 'save-month'/);
   assert.match(rules,/1anoa@erempaf[.]com/);
   assert.match(rules,/3anoe@erempaf[.]com/);
   assert.match(rules,/allow read: if editor\(sala\)/);
+  assert.match(rules,/allow create, update, delete: if false/);
   assert.doesNotMatch(rules,/1anof@erempaf[.]com|3anof@erempaf[.]com/);
   for (const t of TURMAS) {
     const html = readFileSync('.'+t.path,'utf8');
