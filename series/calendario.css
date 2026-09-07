@@ -1695,26 +1695,141 @@ body { overflow-x: hidden; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
 
-/* Agenda mobile: mesmos dias/dados/painel, sem rolagem horizontal. */
+/* Calendário mensal compacto no celular.
+   Mantém a grade escolar de segunda a sexta, mas com aparência de agenda mensal:
+   células pequenas, mês inteiro visível e toque em qualquer célula para abrir detalhes. */
 .dia-semana-mobile { display: none; }
 .materia-item, .materia-bloco-header { color: inherit; font: inherit; text-align: left; }
 .materia-bloco-header { width: 100%; }
 :focus-visible { outline: 3px solid var(--red-bright, #ffdc80); outline-offset: 3px; }
+
 @media (max-width: 600px) {
-  .calendario-wrap { overflow: visible; width: 100%; }
-  /* No desktop .calendario é grid de 5 colunas e .dias usa display:contents.
-     No celular .dias vira uma agenda vertical, então o pai também precisa sair do grid. */
-  .calendario { display: block; min-width: 0; width: 100%; }
-  .calendario .cabecalho, .dias .dia.vazio { display: none; }
-  .calendario .dias { display: flex; flex-direction: column; gap: 10px; width: 100%; }
-  .dias .dia { width: 100%; min-height: 95px; padding: 12px; box-sizing: border-box; }
-  .dia-semana-mobile { display: inline; font-size: 14px; margin-right: auto; }
-  .dias .numero { font-size: 20px; }
-  .dias .dia-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .dias .chip-materia { font-size: 12px; max-width: 100%; white-space: normal; }
-  .dias .dia-nota-preview { display: block; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; -webkit-line-clamp: unset; max-height: none; }
-  .dias .btn-detalhes { display: inline-flex; position: static; min-width: 44px; min-height: 44px; opacity: 1; }
+  .calendario-wrap {
+    overflow: hidden;
+    width: 100%;
+    border-radius: 14px;
+  }
+
+  /* Volta a usar a grade mensal em vez da lista vertical. */
+  .calendario {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    min-width: 0;
+    width: 100%;
+  }
+
+  .calendario .cabecalho,
+  .calendario .dias {
+    display: contents;
+  }
+
+  .calendario .cabecalho span {
+    display: flex;
+    min-width: 0;
+    padding: 8px 1px;
+    font-size: 8px;
+    letter-spacing: .04em;
+    white-space: nowrap;
+  }
+
+  .dias .dia,
+  .dias .dia.vazio {
+    display: flex;
+    width: auto;
+    min-width: 0;
+    min-height: 72px;
+    padding: 6px 4px;
+    gap: 3px;
+    border-radius: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .dias .dia.vazio {
+    opacity: .32;
+  }
+
+  .dia-semana-mobile {
+    display: none;
+  }
+
+  .dias .topo-dia {
+    position: relative;
+    min-height: 18px;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .dias .numero {
+    font-size: 12px;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dias .hoje-badge {
+    font-size: 6px;
+    line-height: 1;
+    padding: 2px 3px;
+    letter-spacing: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dias .dia-dot {
+    width: 5px;
+    height: 5px;
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Mostra no máximo pequenos lembretes de matérias dentro do quadrinho. */
+  .dias .dia-chips {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 2px;
+    max-height: 34px;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .dias .chip-materia {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    padding: 1px 2px;
+    border-radius: 3px;
+    font-size: 6.5px;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Anotações completas ficam no painel do dia; no mês mostramos só o indicador. */
+  .dias .dia-nota-preview {
+    display: none;
+  }
+
+  /* No celular o quadrinho inteiro vira o alvo de toque. */
+  .dias .btn-detalhes {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    opacity: 0;
+    z-index: 3;
+    cursor: pointer;
+  }
+
   .topo-acoes { flex-wrap: wrap; }
   .topo-acoes button, .painel-tabs button { min-height: 44px; }
   .painel-conteudo { max-width: 100%; }
 }
+
