@@ -1,20 +1,9 @@
 // ============================================================
 // CARDÁPIO — EREMPAF  |  Firebase Firestore
 // ============================================================
-import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc }
-  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-/* ── Firebase ── */
-const app = initializeApp({
-  apiKey:            "AIzaSyDgMBfsuR66vQiz5hG5F2OkhiTE_H1ZCTk",
-  authDomain:        "portal-erempaf.firebaseapp.com",
-  projectId:         "portal-erempaf",
-  storageBucket:     "portal-erempaf.firebasestorage.app",
-  messagingSenderId: "124907592592",
-  appId:             "1:124907592592:web:a9de2e6959a768c7d4b115"
-});
-const db = getFirestore(app);
+import { db } from '../shared/firebase.js';
+import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import '../shared/accessibility.js';
 
 /* ── Constantes ── */
 const DIAS_KEY  = ["segunda","terca","quarta","quinta","sexta"];
@@ -28,8 +17,11 @@ const LABELS    = {
 
 /* ── Estado ── */
 let modoEdicao = false;
+let carregado = false;
 let diaAtivo   = diaDeHoje();
 let dados      = {};          // { segunda: { cafe:"...", almoco:"...", lanche:"..." }, ... }
+let senhaEdicao = "";
+const ENDPOINT_CARDAPIO = "https://erempafbackend.netlify.app/.netlify/functions/cardapio";
 
 /* ── Helpers ── */
 function escapeHtml(texto) {
@@ -43,11 +35,26 @@ function diaDeHoje() {
   return mapa[new Date().getDay()] || "segunda";
 }
 
+async function chamarBackend(operation, payload = {}) {
+  const response = await fetch(ENDPOINT_CARDAPIO, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ operation, password: senhaEdicao, ...payload })
+  });
+  if (!response.ok) {
+    const error = new Error(response.status === 401 || response.status === 403 ? "Senha incorreta." : "Não foi possível concluir a operação.");
+    error.status = response.status;
+    throw error;
+  }
+  return response.json();
+}
+
 /* ── Firebase: carregar / salvar ── */
 async function carregarCardapio() {
   try {
     const snap = await getDoc(doc(db, "cardapio", "semana"));
     dados = snap.exists() ? snap.data() : {};
+    carregado = true;
   } catch (e) {
     console.warn("Erro ao carregar:", e);
     dados = {};
@@ -56,6 +63,7 @@ async function carregarCardapio() {
 }
 
 async function salvarCardapio() {
+  if (!carregado) { toast("Recarregue o cardápio antes de salvar.", "error"); return; }
   // Coleta o HTML de cada campo editável
   document.querySelectorAll(".editor-cardapio").forEach(campo => {
     const { dia, tipo } = campo.dataset;
@@ -70,12 +78,13 @@ async function salvarCardapio() {
   btn.disabled    = true;
 
   try {
-    await setDoc(doc(db, "cardapio", "semana"), dados);
+    await chamarBackend("save-legacy-week", { menu: dados });
     sairEdicao();
-    toast("✅ Cardápio salvo com sucesso!", "success");
+    toast("Alterações salvas com sucesso.", "success");
   } catch (e) {
-    toast("❌ Erro ao salvar. Tente novamente.", "error");
-    console.error(e);
+    toast(e.status === 401 || e.status === 403
+      ? "Senha incorreta. Saia da edição e tente novamente."
+      : "Não foi possível salvar. Seus dados foram mantidos; tente novamente.", "error");
   } finally {
     btn.textContent = "Salvar";
     btn.disabled    = false;
@@ -123,6 +132,7 @@ function renderizarDia(diaKey) {
 
 /* ── Abas ── */
 function ativarAba(diaKey) {
+  if (modoEdicao) document.querySelectorAll('.editor-cardapio').forEach(c => { (dados[c.dataset.dia] ||= {})[c.dataset.tipo] = c.innerText.trim(); });
   diaAtivo = diaKey;
   document.querySelectorAll(".tab-btn").forEach(btn =>
     btn.classList.toggle("ativo", btn.dataset.dia === diaKey)
@@ -139,7 +149,7 @@ function entrarEdicao() {
   modoEdicao = true;
   renderizarDia(diaAtivo);
   document.getElementById("btnSalvar").style.display = "inline-block";
-  document.getElementById("btnEditar").textContent   = "Cancelar";
+  document.getElementById("btnEditar").textContent   = "Sair da edição";
 }
 
 function sairEdicao() {
@@ -161,33 +171,38 @@ function fecharModalSenha() {
 }
 
 async function verificarSenha() {
-  const val  = document.getElementById("inp-senha").value.trim();
+  const val  = document.getElementById("inp-senha").value;
   const erro = document.getElementById("erro-senha");
+  const btn = document.getElementById("btn-ok-senha");
   if (!val) { erro.textContent = "Digite a senha."; return; }
   erro.textContent = "";
+  btn.textContent = "Verificando...";
+  btn.disabled = true;
 
   try {
-    const snap = await getDoc(doc(db, "config", "cardapio"));
-    if (!snap.exists()) {
-      erro.textContent = "Configuração não encontrada no Firebase.";
-      return;
-    }
-    if (val === snap.data().senha) {
+    senhaEdicao = val;
+    await chamarBackend("verify");
+    {
+      document.getElementById("inp-senha").value = "";
       fecharModalSenha();
       entrarEdicao();
-    } else {
-      erro.textContent = "Senha incorreta. Tente novamente.";
-      document.getElementById("inp-senha").value = "";
-      document.getElementById("inp-senha").focus();
     }
-  } catch {
-    erro.textContent = "Erro ao verificar. Tente novamente.";
+  } catch (e) {
+    senhaEdicao = "";
+    erro.textContent = e.status === 401 || e.status === 403 ? "Senha incorreta." : "Não foi possível verificar a senha. Tente novamente.";
+  } finally {
+    btn.textContent = "Entrar";
+    btn.disabled = false;
   }
 }
 
 /* ── Eventos ── */
 document.getElementById("btnEditar").addEventListener("click", () => {
-  if (modoEdicao) { sairEdicao(); } else { abrirModalSenha(); }
+  if (modoEdicao) {
+    senhaEdicao = "";
+    sairEdicao();
+    toast("Modo de edição encerrado.", "info");
+  } else { abrirModalSenha(); }
 });
 
 document.getElementById("btnSalvar").addEventListener("click", salvarCardapio);

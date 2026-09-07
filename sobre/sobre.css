@@ -245,6 +245,69 @@ body {
   margin-top: 2px;
 }
 
+.membro-destaque {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(26, 60, 143, .12);
+  border-left: 4px solid var(--azul);
+  background: linear-gradient(135deg, #fff 0%, #f5f8ff 100%);
+}
+
+.membro-destaque::after {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  right: -90px;
+  top: -100px;
+  border-radius: 50%;
+  background: rgba(26, 60, 143, .055);
+  pointer-events: none;
+}
+
+.membro-titulo-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+}
+
+.membro-turma-badge {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(26, 60, 143, .09);
+  color: var(--azul-escuro);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.membro-acoes { margin-top: 14px; }
+
+.membro-social-link {
+  width: min(100%, 270px);
+  min-height: 54px;
+  padding: 9px 12px;
+  border: 1px solid rgba(26, 60, 143, .18);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--azul-escuro);
+  background: var(--branco);
+  text-decoration: none;
+  box-shadow: 0 5px 16px rgba(18, 45, 110, .07);
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+}
+
+.membro-social-link > svg:first-child { width: 23px; height: 23px; flex: 0 0 auto; }
+.membro-social-link span { display: flex; flex-direction: column; min-width: 0; line-height: 1.3; }
+.membro-social-link strong { font-size: 12px; }
+.membro-social-link small { color: var(--texto-sub); font-size: 11px; }
+.membro-link-arrow { width: 17px; height: 17px; margin-left: auto; flex: 0 0 auto; }
+.membro-social-link:hover { transform: translateY(-2px); border-color: var(--azul); box-shadow: 0 9px 22px rgba(18, 45, 110, .13); }
+
 .membro-contato {
   margin-top: 10px;
   padding-top: 10px;
@@ -266,7 +329,7 @@ body {
 
 .membro-contato-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 10px;
 }
 
@@ -288,13 +351,31 @@ body {
   color: #999;
   letter-spacing: 0.07em;
   text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
+
+.membro-campo-icone { width: 13px; height: 13px; flex: 0 0 auto; }
 
 .membro-contato-valor {
   font-size: 12px;
   color: var(--texto);
   font-weight: 600;
   word-break: break-word;
+}
+
+.membro-email-link {
+  width: fit-content;
+  color: var(--azul);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color .2s, border-color .2s;
+}
+
+.membro-email-link:hover {
+  color: var(--azul-escuro);
+  border-bottom-color: currentColor;
 }
 
 /* ── CONTATO ── */
@@ -350,4 +431,9 @@ body {
   .footer-inner { grid-template-columns: 1fr; gap: 24px; }
   .membro-card { flex-direction: column; align-items: center; text-align: center; }
   .membro-contato-grid { grid-template-columns: 1fr; }
+  .membro-titulo-row { justify-content: center; }
+  .membro-social-link { margin-inline: auto; text-align: left; }
 }
+/* Refinamento responsivo do portal institucional */
+body{overflow-x:hidden;line-height:1.55}.header{background:linear-gradient(110deg,#122d6e,#1a3c8f)}.nav-inner{overflow-x:auto;scrollbar-width:none}.nav-link{white-space:nowrap}.card,.membro-card{border-radius:14px;box-shadow:0 10px 30px rgba(18,45,110,.08);transition:transform .2s,box-shadow .2s}.card:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(18,45,110,.12)}:focus-visible{outline:3px solid rgba(240,192,48,.8);outline-offset:3px}
+@media(max-width:600px){.header-inner,.page-hero-inner,.conteudo-inner{padding-left:16px;padding-right:16px}.header-title{font-size:13px}.header-title br{display:none}.header-logo{width:56px;height:56px}.nav-inner{padding:0 6px}.nav-link{padding:12px 14px}.cards-row,.features-grid,.equipe-grid{grid-template-columns:1fr}.card{padding:20px}.card:hover{transform:none}.footer-inner{grid-template-columns:1fr}}

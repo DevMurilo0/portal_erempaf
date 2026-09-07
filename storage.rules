@@ -1,0 +1,25 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function editor(sala) {
+      return request.auth != null && request.auth.token.get('editorTurmas', []) is list
+        && sala in request.auth.token.get('editorTurmas', []);
+    }
+    function knownRoom(sala) {
+      return sala in ['1ano-a','1ano-b','1ano-c','1ano-d','1ano-e','1ano-f',
+        '2ano-a','2ano-b','2ano-c','2ano-d','2ano-e',
+        '3ano-a','3ano-b','3ano-c','3ano-d','3ano-e','3ano-f'];
+    }
+    match /salas/{sala}/fotos/{dia}/{file} {
+      allow read: if request.auth != null;
+      allow create: if resource == null && knownRoom(sala) && editor(sala)
+        && dia.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && file.matches('^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}[.]jpg$')
+        && request.resource.size > 0
+        && request.resource.size <= 2 * 1024 * 1024 && request.resource.contentType == 'image/jpeg';
+      allow update: if false; // arquivos imutáveis; novas fotos recebem novo identificador
+      allow delete: if knownRoom(sala) && editor(sala);
+    }
+    match /{path=**} { allow read, write: if false; }
+  }
+}

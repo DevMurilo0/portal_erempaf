@@ -1,0 +1,16 @@
+{
+  "name": "portal-erempaf",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/unit.test.js",
+    "test:rules": "npx -y firebase-tools@15.29.0 emulators:exec --project demo-erempaf --only firestore \"node --test tests/rules.test.js\"",
+    "test:browser": "node tests/browser.mjs",
+    "serve": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.0",
+    "firebase": "^12.0.0",
+    "playwright": "^1.55.0"
+  }
+}

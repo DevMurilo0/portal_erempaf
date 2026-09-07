@@ -1,13 +1,21 @@
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { auth, db, observeSession, canEdit, requireEditor, login } from '../shared/firebase.js';
+import { TURMAS } from '../config/turmas.js';
+import { escapeHtml, normalizedPhoto, photoSource, stableJson } from '../shared/content.js';
+import { compressPhoto } from '../shared/photos.js';
+import '../shared/accessibility.js';
+const turma = TURMAS.find(t => t.path === location.pathname || t.path.replace('index.html', '') === location.pathname);
+if (!turma) throw new Error('Turma não cadastrada.');
+const SALA_ID = turma.id;
+window.SALA_ID = SALA_ID;
+window.db = db;
+window.auth = auth;
 
 import {
   doc,
   setDoc,
+  runTransaction,
   getDoc,
+  getDocFromServer,
   deleteField
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -18,11 +26,10 @@ window.mostrarToast = mostrarToast;
 /* ──────────────────────────────────────────────
    CONFIGURAÇÃO
 ────────────────────────────────────────────── */
-const auth = getAuth();
 
 
 
-const EMAIL_TURMA = SALA_ID.replace("-", "") + "@erempaf.com";
+
 
 const MATERIAS = [
   "Português", "Matemática", "História",
@@ -38,6 +45,47 @@ let estadoDetalhes = {};
 let estadoFotos = {}; // { "2026-06-10": ["base64...", "base64..."] }
 let tabAtiva = "anotacoes";
 let dataAtual = new Date();
+let salvamentoEmAndamento = false;
+
+// Fila de fotos aguardando descrição. As imagens voltaram a ser salvas em Base64 no Firestore.
+let _filaPendente = [];
+let _diaUpload = null;
+
+function descartarAlteracoesFotosLocais() {
+  _filaPendente = [];
+  _diaUpload = null;
+
+  const modal = document.getElementById('modal-desc-foto');
+  if (modal) {
+    modal._b64pendente = null;
+    modal.classList.add('hidden');
+  }
+  const preview = document.getElementById('modal-desc-preview');
+  if (preview) preview.removeAttribute('src');
+}
+
+function chavesAlteradas(atual = {}, anterior = {}) {
+  const keys = new Set([...Object.keys(atual || {}), ...Object.keys(anterior || {})]);
+  return [...keys].filter(key => stableJson(atual?.[key]) !== stableJson(anterior?.[key]));
+}
+
+function validarLimitesDeAlteracaoDasRules() {
+  const anterior = loaded?.data || {};
+  const limites = [
+    ['anotações', estadoDetalhes, anterior.detalhes || {}, 10],
+    ['matérias', estadoMaterias, anterior.materias || {}, 5],
+    ['fotos', estadoFotos, anterior.fotos || {}, 3]
+  ];
+
+  for (const [nome, atual, antigo, limite] of limites) {
+    const quantidade = chavesAlteradas(atual, antigo).length;
+    if (quantidade > limite) {
+      throw new Error(
+        `Há alterações em ${quantidade} dias de ${nome}. Por segurança, salve no máximo ${limite} dias de ${nome} por vez.`
+      );
+    }
+  }
+}
 
 /* ──────────────────────────────────────────────
    ELEMENTOS
@@ -47,7 +95,6 @@ const btnLoginForm = document.getElementById("btn-login");
 const emailInput = document.getElementById("login-email");
 const senhaInput = document.getElementById("login-senha");
 const erroLogin = document.getElementById("login-erro");
-const btnLoginTopo = document.getElementById("btn-login-topo");
 
 const diasContainer = document.getElementById("dias");
 const mesAnoSpan = document.getElementById("mes-ano");
@@ -65,65 +112,45 @@ const materiasGrid = document.getElementById("materias-grid");
    AUTENTICAÇÃO — LOGIN DA TURMA
 ────────────────────────────────────────────── */
 
-function estaLogadoNaTurma(user) {
-  return user && user.email === EMAIL_TURMA;
-}
-
 function abrirModalLogin() {
+  const estavaFechado = telaLogin.classList.contains("hidden");
+
+  telaLogin.classList.remove("hidden");
+
+  // Se o Firebase repetir o estado "deslogado", não apaga
+  // o que a pessoa já começou a digitar.
+  if (!estavaFechado) return;
+
   if (emailInput) emailInput.value = "";
   if (senhaInput) senhaInput.value = "";
   if (erroLogin) erroLogin.textContent = "";
-  telaLogin.classList.remove("hidden");
+
   setTimeout(() => emailInput?.focus(), 100);
 }
 
 function fecharModalLogin() {
   telaLogin.classList.add("hidden");
+
+  // Não deixa a senha digitada guardada no campo escondido.
+  if (senhaInput) senhaInput.value = "";
+  if (erroLogin) erroLogin.textContent = "";
 }
 
-const STORAGE_KEY = `erempaf_auth_${SALA_ID}`;
-
-function turmaJaAutenticada() {
-  return localStorage.getItem(STORAGE_KEY) === "1";
-}
-
-function marcarTurmaAutenticada() {
-  localStorage.setItem(STORAGE_KEY, "1");
-}
-
-// onAuthStateChanged dispara uma vez ao carregar com o estado real da sessão
-onAuthStateChanged(auth, (user) => {
-  window.usuarioLogado = user || null;
-
-  if (estaLogadoNaTurma(user)) {
-    // Firebase ainda tem a sessão desta turma ativa
-    marcarTurmaAutenticada();
-    fecharModalLogin();
-    if (btnLoginTopo) btnLoginTopo.style.display = "none";
-    btnEditar.disabled = false;
-    if (window.carregarCalendario) window.carregarCalendario();
-  } else if (turmaJaAutenticada()) {
-    // Já autenticou antes nesta turma — faz login silencioso pelo Firebase
-    // O Firebase pode estar com outra sessão, mas o localStorage confirma que
-    // esta turma já foi autenticada. Aguarda o relogin não ser necessário:
-    // basta sinalizar como apto e carregar (modo leitura sem edição até relogar)
-    fecharModalLogin();
-    if (btnLoginTopo) btnLoginTopo.style.display = "none";
-    btnEditar.disabled = false;
-    window.modoSoLeitura = true;
-    if (window.carregarCalendario) window.carregarCalendario();
-  } else {
-    // Primeira vez nesta turma → pede login
-    if (btnLoginTopo) btnLoginTopo.style.display = "inline-flex";
-    btnEditar.disabled = true;
-    abrirModalLogin();
-  }
+let claimsAtuais = {};
+observeSession(({ user, claims }) => {
+  const uidAnterior = window.usuarioLogado?.uid;
+  const changed = uidAnterior !== user?.uid;
+  if (changed && uidAnterior) descartarAlteracoesFotosLocais();
+  window.usuarioLogado = user;
+  claimsAtuais = claims;
+  if (changed || !canEdit(SALA_ID, claims)) modoEdicao = false;
+  atualizarModoEdicao();
+  const permitido = canEdit(SALA_ID, claims, user);
+  btnEditar.disabled = !permitido;
+  btnEditar.title = permitido ? 'Editar calendário' : 'Esta conta não pode editar esta turma';
+  if (user) { fecharModalLogin(); if (changed || !loaded) carregarCalendario(); }
+  else { estadoMaterias = {}; estadoDetalhes = {}; estadoFotos = {}; campoAvisos.value = ''; renderizarCalendario(); abrirModalLogin(); }
 });
-
-// Botão "Entrar" no topo
-if (btnLoginTopo) {
-  btnLoginTopo.addEventListener("click", abrirModalLogin);
-}
 
 // Submit do login
 btnLoginForm.addEventListener("click", async () => {
@@ -136,24 +163,14 @@ btnLoginForm.addEventListener("click", async () => {
     return;
   }
 
+  btnLoginForm.disabled = true;
   try {
-    const cred = await signInWithEmailAndPassword(auth, email, senha);
-    window.usuarioLogado = cred.user;
-
-    if (estaLogadoNaTurma(cred.user)) {
-      marcarTurmaAutenticada();
-      window.modoSoLeitura = false;
-      fecharModalLogin();
-      btnEditar.disabled = false;
-      mostrarToast("✅ Login realizado!", "success");
-      await carregarCalendario();
-    } else {
-      erroLogin.textContent = "Esse email não pertence a esta turma.";
-      await auth.signOut();
-    }
+    await login(email, senha);
+    fecharModalLogin();
+    mostrarToast('Login realizado com sucesso.', 'success');
   } catch {
     erroLogin.textContent = "Email ou senha incorretos.";
-  }
+  } finally { btnLoginForm.disabled = false; }
 });
 
 // Enter nos campos de login
@@ -165,82 +182,40 @@ emailInput.addEventListener("keydown", (e) => {
 });
 
 /* ──────────────────────────────────────────────
-   MODO EDIÇÃO — SENHA DO FIRESTORE
+   MODO EDIÇÃO — CONTA AUTORIZADA
 ────────────────────────────────────────────── */
 
-async function verificarSenhaEdicao(senhaDigitada) {
-  const ref = doc(window.db, "salas", SALA_ID);
-  const snap = await getDoc(ref);
-  if (!snap.exists()) return false;
-  return senhaDigitada === snap.data().senha;
-}
-
-function abrirModalSenhaEdicao() {
-  const modal = document.getElementById("modal-senha-edicao");
-  const input = document.getElementById("senha-edicao-input");
-  const erro = document.getElementById("senha-edicao-erro");
-  if (input) input.value = "";
-  if (erro) erro.textContent = "";
-  modal.classList.remove("hidden");
-  setTimeout(() => input?.focus(), 100);
-}
-
-function fecharModalSenhaEdicao() {
-  document.getElementById("modal-senha-edicao").classList.add("hidden");
-}
-
-document.getElementById("btn-confirmar-senha-edicao")?.addEventListener("click", async () => {
-  const input = document.getElementById("senha-edicao-input");
-  const erro = document.getElementById("senha-edicao-erro");
-  const senha = input.value;
-
-  if (!senha) { erro.textContent = "Digite a senha."; return; }
-
-  const ok = await verificarSenhaEdicao(senha);
-  if (ok) {
-    fecharModalSenhaEdicao();
+// A confirmação visual permanece; a autorização vem do token e das Rules.
+btnEditar.addEventListener('click', async () => {
+  try {
+    await requireEditor(SALA_ID);
     modoEdicao = true;
-    window._snapshotMaterias = JSON.parse(JSON.stringify(estadoMaterias)); // ← NOVO: guarda "foto" de antes da edição
+    window._snapshotMaterias = structuredClone(estadoMaterias);
     atualizarModoEdicao();
-    mostrarToast("✏️ Modo edição ativado", "info");
-  } else {
-    erro.textContent = "Senha incorreta.";
-    input.value = "";
-    input.focus();
-  }
-});
-
-document.getElementById("btn-cancelar-senha-edicao")?.addEventListener("click", fecharModalSenhaEdicao);
-
-document.getElementById("senha-edicao-input")?.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") document.getElementById("btn-confirmar-senha-edicao")?.click();
-  if (e.key === "Escape") fecharModalSenhaEdicao();
-});
-
-btnEditar.addEventListener("click", async () => {
-  if (!estaLogadoNaTurma(window.usuarioLogado) && !window.modoSoLeitura) {
-    abrirModalLogin();
-    return;
-  }
-  abrirModalSenhaEdicao();
+    if (diaDetalheAtual) renderizarMaterias(diaDetalheAtual);
+    mostrarToast('Modo de edição ativado.', 'info');
+  } catch (e) { mostrarToast(e.message, 'error'); }
 });
 
 btnSalvar.addEventListener("click", async () => {
+  if (salvamentoEmAndamento) return;
   try {
-    await salvarCalendario();
-    mostrarToast("✅ Salvo com sucesso!", "success");
+    const salvo = await salvarCalendario();
+    if (!salvo) return;
+    mostrarToast("Alterações salvas com sucesso.", "success");
   } catch (e) {
-    mostrarToast("❌ Erro ao salvar: " + e.message, "error");
+    mostrarToast("Não foi possível salvar as alterações: " + e.message, "error");
+    return;
   }
   modoEdicao = false;
   atualizarModoEdicao();
-  await carregarCalendario();
+  renderizarCalendario();
 });
 
 function atualizarModoEdicao() {
   document.querySelectorAll("textarea").forEach(t => { t.disabled = !modoEdicao; });
   campoAvisos.disabled = !modoEdicao;
-  campoDetalhes.disabled = !modoEdicao;
+  campoDetalhes.disabled = !modoEdicao || salvamentoEmAndamento;
   btnSalvar.hidden = !modoEdicao;
   btnEditar.hidden = modoEdicao;
 
@@ -256,6 +231,7 @@ function atualizarModoEdicao() {
 ────────────────────────────────────────────── */
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
+    ativarTab(btn.dataset.tab);
     tabAtiva = btn.dataset.tab;
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
     document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
@@ -267,12 +243,6 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
 /* ──────────────────────────────────────────────
    RENDERIZAR CALENDÁRIO
 ────────────────────────────────────────────── */
-function escapeHtml(texto) {
-  const div = document.createElement("div");
-  div.textContent = texto;
-  return div.innerHTML;
-}
-
 function renderizarCalendario() {
   diasContainer.innerHTML = "";
 
@@ -290,7 +260,7 @@ function renderizarCalendario() {
   if (primeiroDiaSemana >= 1 && primeiroDiaSemana <= 5) {
     offset = primeiroDiaSemana - 1;
   } else if (primeiroDiaSemana === 0) {
-    offset = 4;
+    offset = 0;
   }
 
   for (let i = 0; i < offset; i++) {
@@ -321,7 +291,7 @@ function renderizarCalendario() {
       }
 
       const chipsHTML = materiasNoDia.map(m =>
-        `<span class="chip-materia">${m}</span>`
+        `<span class="chip-materia">${escapeHtml(m)}</span>`
       ).join("");
 
       const notaTexto = (estadoDetalhes[dataISO] || "").trim();
@@ -331,10 +301,10 @@ function renderizarCalendario() {
 
       div.innerHTML = `
         <div class="topo-dia">
-          <span class="numero">${dia}</span>
+          <span class="numero">${dia}</span><span class="dia-semana-mobile">${data.toLocaleDateString("pt-BR", { weekday: "long" })}</span>
           <span class="dia-dot" title="Este dia tem anotação ou matéria marcada"></span>
           <span class="hoje-badge">hoje</span>
-          <button class="btn-detalhes" data-dia="${dataISO}" title="Ver detalhes do dia">＋</button>
+          <button class="btn-detalhes" data-dia="${dataISO}" aria-label="Ver detalhes de ${dia} de ${mesAnoSpan.textContent}" title="Ver detalhes do dia">＋</button>
         </div>
         <div class="dia-chips">${chipsHTML}</div>
         ${notaHTML}
@@ -369,7 +339,7 @@ function abrirPainel(diaISO) {
   if (diaSemanaEl) diaSemanaEl.textContent = diasSemana[data.getDay()];
 
   campoDetalhes.value = estadoDetalhes[diaISO] || "";
-  campoDetalhes.disabled = !modoEdicao;
+  campoDetalhes.disabled = !modoEdicao || salvamentoEmAndamento;
 
   renderizarMaterias(diaISO);
   renderizarFotos(diaISO);
@@ -386,6 +356,7 @@ function ativarTab(tab) {
   tabAtiva = tab;
   document.querySelectorAll(".tab-btn").forEach(b => {
     b.classList.toggle("active", b.dataset.tab === tab);
+    b.setAttribute("aria-selected", String(b.dataset.tab === tab));
   });
   document.querySelectorAll(".tab-content").forEach(c => {
     c.classList.toggle("active", c.id === `tab-${tab}`);
@@ -401,12 +372,12 @@ function renderizarMaterias(diaISO) {
     MATERIAS.map(mat => {
       const ativa = mat in marcadas;
       return `
-        <div class="materia-item ${ativa ? "checked" : ""}"
+        <button type="button" aria-pressed="${ativa}" class="materia-item ${ativa ? "checked" : ""}"
              data-materia="${mat}"
              onclick="toggleMateria('${diaISO}','${mat}',this)">
           <div class="materia-check">${ativa ? "✓" : ""}</div>
           <span class="materia-nome">${mat}</span>
-        </div>`;
+        </button>`;
     }).join("") +
     `</div>`;
 
@@ -424,26 +395,20 @@ function renderizarBlocosAnotacoes(diaISO) {
     return;
   }
 
-  container.innerHTML = `<div class="materias-blocos">` +
-    Object.entries(marcadas).map(([mat, desc]) => `
-      <div class="materia-bloco" data-materia="${mat}">
-        <div class="materia-bloco-header" onclick="toggleBloco(this)">
-          <span class="materia-bloco-nome">${mat}</span>
-          <span class="materia-bloco-arrow">▾</span>
-        </div>
-        <div class="materia-bloco-body">
-          <textarea
-            class="materia-bloco-desc"
-            data-dia="${diaISO}"
-            data-materia="${mat}"
-            placeholder="Tarefa, prova, conteúdo..."
-            ${modoEdicao ? "" : "disabled"}
-            oninput="salvarDescMateria('${diaISO}','${mat}',this.value)"
-          >${desc || ""}</textarea>
-        </div>
-      </div>
-    `).join("") +
-    `</div>`;
+  container.replaceChildren();
+  const list = document.createElement('div'); list.className = 'materias-blocos';
+  for (const [mat, desc] of Object.entries(marcadas)) {
+    const block = document.createElement('div'); block.className = 'materia-bloco'; block.dataset.materia = mat;
+    const header = document.createElement('button'); header.type = 'button'; header.className = 'materia-bloco-header';
+    header.textContent = mat + ' ▾'; header.setAttribute('aria-expanded', 'false');
+    header.onclick = () => { block.classList.toggle('aberto'); header.setAttribute('aria-expanded', String(block.classList.contains('aberto'))); };
+    const body = document.createElement('div'); body.className = 'materia-bloco-body';
+    const input = document.createElement('textarea'); input.className = 'materia-bloco-desc'; input.dataset.dia = diaISO; input.dataset.materia = mat;
+    input.value = typeof desc === 'string' ? desc : ''; input.disabled = !modoEdicao; input.placeholder = 'Tarefa, prova, conteúdo...'; input.setAttribute('aria-label', mat);
+    input.oninput = () => window.salvarDescMateria(diaISO, mat, input.value);
+    body.append(input); block.append(header, body); list.append(block);
+  }
+  container.append(list);
 }
 
 window.toggleBloco = function (header) {
@@ -452,13 +417,14 @@ window.toggleBloco = function (header) {
 };
 
 window.salvarDescMateria = function (diaISO, materia, valor) {
+  if (!modoEdicao || salvamentoEmAndamento) return;
   if (!estadoMaterias[diaISO]) estadoMaterias[diaISO] = {};
   estadoMaterias[diaISO][materia] = valor;
 };
 
 window.toggleMateria = function (diaISO, materia, el) {
-  if (!modoEdicao) {
-    mostrarToast("🔒 Ative o modo edição para alterar", "info");
+  if (!modoEdicao || salvamentoEmAndamento) {
+    mostrarToast("Ative o modo de edição para fazer alterações.", "info");
     return;
   }
   if (!estadoMaterias[diaISO]) estadoMaterias[diaISO] = {};
@@ -501,9 +467,15 @@ painelDetalhes.addEventListener("click", (e) => {
   if (e.target === painelDetalhes) fecharPainel();
 });
 document.getElementById("btn-painel-salvar")?.addEventListener("click", async () => {
-  await salvarCalendario();
-  renderizarCalendario();
-  mostrarToast("✅ Salvo!", "success");
+  if (salvamentoEmAndamento) return;
+  try {
+    const salvo = await salvarCalendario();
+    if (!salvo) return;
+    renderizarCalendario();
+    mostrarToast("Alterações salvas com sucesso.", "success");
+  } catch (e) {
+    mostrarToast("Não foi possível salvar as alterações: " + e.message, "error");
+  }
 });
 
 function fecharPainel() {
@@ -519,7 +491,7 @@ function renderizarFotos(diaISO) {
   const container = document.getElementById("tab-fotos");
   if (!container) return;
 
-  const fotos = estadoFotos[diaISO] || [];
+  const fotos = (estadoFotos[diaISO] || []).map(normalizedPhoto);
 
   const uploadHTML = modoEdicao ? `
     <label class="btn-upload-foto">
@@ -532,8 +504,8 @@ function renderizarFotos(diaISO) {
     ? `<div class="fotos-galeria">
         ${fotos.map((foto, i) => `
           <div class="foto-item">
-            <img src="${foto.img}" onclick="abrirFotoGrande('${diaISO}', ${i})" title="${foto.desc}">
-            ${foto.desc ? `<div class="foto-desc-badge">${foto.desc}</div>` : ""}
+            <img loading="lazy" decoding="async" alt="${escapeHtml(foto.desc || "Foto do quadro")}" tabindex="0" role="button" src="${escapeHtml(foto.img)}" onclick="abrirFotoGrande('${diaISO}', ${i})" title="${escapeHtml(foto.desc)}">
+            ${foto.desc ? `<div class="foto-desc-badge">${escapeHtml(foto.desc)}</div>` : ""}
             ${modoEdicao ? `<button class="btn-remover-foto" onclick="removerFoto('${diaISO}', ${i})">✕</button>` : ""}
           </div>
         `).join("")}
@@ -546,6 +518,8 @@ function renderizarFotos(diaISO) {
     ${galeriaHTML}
   `;
 
+  container.querySelectorAll('img[role="button"]').forEach(img => img.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); img.click(); } });
+  container.querySelectorAll('.btn-remover-foto').forEach(b => b.setAttribute('aria-label', 'Remover foto'));
   const inputFoto = document.getElementById("input-foto");
   if (inputFoto) {
     inputFoto.addEventListener("change", (e) => iniciarUploadFotos(diaISO, e.target.files));
@@ -553,11 +527,8 @@ function renderizarFotos(diaISO) {
 }
 
 // Fila de fotos aguardando descrição
-let _filaPendente = [];
-let _diaUpload = null;
-
 async function iniciarUploadFotos(diaISO, files) {
-  if (!files.length) return;
+  if (!modoEdicao || salvamentoEmAndamento || !files.length || _filaPendente.length) return;
   _diaUpload = diaISO;
   _filaPendente = Array.from(files);
   processarProximaFoto();
@@ -568,17 +539,18 @@ async function processarProximaFoto() {
 
   if (!estadoFotos[_diaUpload]) estadoFotos[_diaUpload] = [];
   if (estadoFotos[_diaUpload].length >= 6) {
-    mostrarToast("⚠️ Limite de 6 fotos por dia", "error");
+    mostrarToast("O limite é de 6 fotos por dia.", "warning");
     _filaPendente = [];
     return;
   }
 
   const file = _filaPendente.shift();
-  mostrarToast("⏳ Comprimindo foto...", "info");
-  const b64 = await comprimirImagem(file, 900, 0.72);
-
-  // Abre modal de descrição com a foto comprimida
-  abrirModalDescFoto(b64);
+  mostrarToast("Preparando a foto...", "info");
+  try {
+    const b64 = await compressPhoto(file, 900, 0.72);
+    // Abre modal de descrição com a foto comprimida em Base64
+    abrirModalDescFoto(b64);
+  } catch (e) { mostrarToast(e.message, 'error'); _filaPendente = []; }
 }
 
 function abrirModalDescFoto(b64) {
@@ -639,11 +611,12 @@ function confirmarDescFoto() {
   }
 
   if (!estadoFotos[_diaUpload]) estadoFotos[_diaUpload] = [];
+  if (!modoEdicao || salvamentoEmAndamento) return;
   estadoFotos[_diaUpload].push({ img: modal._b64pendente, desc });
 
   fecharModalDescFoto();
   renderizarFotos(_diaUpload);
-  mostrarToast("✅ Foto adicionada! Salve para guardar.", "success");
+  mostrarToast("Foto adicionada! Salve para guardar.", "success");
 
   // Processa próxima foto da fila
   if (_filaPendente.length > 0) processarProximaFoto();
@@ -653,34 +626,15 @@ function fecharModalDescFoto() {
   document.getElementById("modal-desc-foto")?.classList.add("hidden");
 }
 
-function comprimirImagem(file, maxWidth, quality) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ratio = Math.min(maxWidth / img.width, maxWidth / img.height, 1);
-        canvas.width = img.width * ratio;
-        canvas.height = img.height * ratio;
-        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", quality));
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
 window.removerFoto = function (diaISO, idx) {
-  if (!estadoFotos[diaISO]) return;
+  if (!modoEdicao || salvamentoEmAndamento || !estadoFotos[diaISO]) return;
   estadoFotos[diaISO].splice(idx, 1);
   renderizarFotos(diaISO);
-  mostrarToast("🗑️ Foto removida. Salve para confirmar.", "info");
+  mostrarToast("Foto removida. Salve para confirmar.", "info");
 };
 
 window.abrirFotoGrande = function (diaISO, startIdx) {
-  const fotos = estadoFotos[diaISO] || [];
+  const fotos = (estadoFotos[diaISO] || []).map(normalizedPhoto);
   if (!fotos.length) return;
 
   let idx = startIdx;
@@ -733,11 +687,11 @@ window.abrirFotoGrande = function (diaISO, startIdx) {
       </div>
       <div class="lightbox-stage" id="lb-stage">
         <button class="lightbox-nav lb-prev${total <= 1 ? ' hidden-nav' : ''}" id="lb-prev">‹</button>
-        <img src="${foto.img}" class="lightbox-img" id="lb-img" draggable="false">
+        <img src="${escapeHtml(foto.img)}" class="lightbox-img" id="lb-img" draggable="false">
         <button class="lightbox-nav lb-next${total <= 1 ? ' hidden-nav' : ''}" id="lb-next">›</button>
       </div>
       <div class="lightbox-bottombar" id="lb-bottombar" style="${foto.desc ? '' : 'display:none'}">
-        <p class="lightbox-desc" id="lb-desc">${foto.desc || ''}</p>
+        <p class="lightbox-desc" id="lb-desc">${escapeHtml(foto.desc || '')}</p>
       </div>
     `;
   }
@@ -750,7 +704,7 @@ window.abrirFotoGrande = function (diaISO, startIdx) {
     const img = document.getElementById("lb-img");
     if (img) {
       img.style.opacity = "0";
-      setTimeout(() => { img.src = f.img; img.style.opacity = "1"; }, 150);
+      setTimeout(() => { img.src = photoSource(f); img.style.opacity = "1"; }, 150);
     }
     const counter = overlay.querySelector(".lightbox-counter");
     if (counter) counter.textContent = `${idx + 1} / ${total}`;
@@ -760,11 +714,14 @@ window.abrirFotoGrande = function (diaISO, startIdx) {
     if (bar) bar.style.display = f.desc ? "" : "none";
   }
 
+  const opener = document.activeElement;
+  const closeLightbox = () => { overlay.remove(); document.removeEventListener('keydown', onKey); opener?.focus(); };
   buildHTML();
+  overlay.querySelectorAll('button').forEach(b => b.setAttribute('aria-label', b.title || (b.id === 'lb-prev' ? 'Foto anterior' : 'Próxima foto')));
   document.body.appendChild(overlay);
 
   // Botões
-  overlay.querySelector("#lb-fechar").addEventListener("click", () => overlay.remove());
+  overlay.querySelector("#lb-fechar").addEventListener("click", closeLightbox);
   overlay.querySelector("#lb-foco").addEventListener("click", toggleFoco);
   overlay.querySelector("#lb-prev")?.addEventListener("click", (e) => { e.stopPropagation(); if (scale === 1) atualizar(idx - 1); });
   overlay.querySelector("#lb-next")?.addEventListener("click", (e) => { e.stopPropagation(); if (scale === 1) atualizar(idx + 1); });
@@ -779,8 +736,8 @@ window.abrirFotoGrande = function (diaISO, startIdx) {
   overlay.querySelector("#lb-download").addEventListener("click", () => {
     const foto = fotos[idx];
     const a = document.createElement("a");
-    a.href = foto.img;
-    a.download = foto.desc ? `${foto.desc}.jpg` : `foto-${idx + 1}.jpg`;
+    a.href = photoSource(foto);
+    a.download = foto.desc ? `${escapeHtml(foto.desc)}.jpg` : `foto-${idx + 1}.jpg`;
     a.click();
   });
 
@@ -788,7 +745,7 @@ window.abrirFotoGrande = function (diaISO, startIdx) {
   function onKey(e) {
     if (e.key === "ArrowLeft") { if (scale === 1) atualizar(idx - 1); }
     if (e.key === "ArrowRight") { if (scale === 1) atualizar(idx + 1); }
-    if (e.key === "Escape") { overlay.remove(); document.removeEventListener("keydown", onKey); }
+    if (e.key === "Escape") { closeLightbox(); }
   }
   document.addEventListener("keydown", onKey);
 
@@ -860,7 +817,7 @@ window.abrirFotoGrande = function (diaISO, startIdx) {
   });
 
   // Clique no fundo fecha
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) overlay.remove(); });
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeLightbox(); });
 };
 
 function atualizarChipsDia(diaISO) {
@@ -870,7 +827,7 @@ function atualizarChipsDia(diaISO) {
   if (!chips) return;
 
   const materias = Object.keys(estadoMaterias[diaISO] || {});
-  chips.innerHTML = materias.map(m => `<span class="chip-materia">${m}</span>`).join("");
+  chips.innerHTML = materias.map(m => `<span class="chip-materia">${escapeHtml(m)}</span>`).join("");
 
   if (materias.length > 0 || estadoDetalhes[diaISO]) {
     diaEl.classList.add("tem-conteudo");
@@ -907,113 +864,89 @@ function detectarNovosEventos() {
   return eventos;
 }
 
+let loaded = null;
+let loadSequence = 0;
 async function salvarCalendario() {
-  if (!estaLogadoNaTurma(window.usuarioLogado) && !turmaJaAutenticada()) {
-    mostrarToast("⚠️ Faça login para salvar", "error");
-    return;
-  }
-
-  const mesAno = mesAnoKey();
-  const dados = {};
-
-  document.querySelectorAll("textarea[data-dia]").forEach(el => {
-    dados[el.dataset.dia] = el.value.trim() || deleteField();
-  });
-
-  dados.avisos = campoAvisos.value.trim() || deleteField();
-
-  dados.detalhes = {};
-  Object.entries(estadoDetalhes).forEach(([k, v]) => {
-    if (k.startsWith(mesAno.slice(0, 7))) dados.detalhes[k] = v || deleteField();
-  });
-
-  dados.materias = {};
-  Object.entries(estadoMaterias).forEach(([k, v]) => {
-    if (k.startsWith(mesAno.slice(0, 7))) {
-      dados.materias[k] = Object.keys(v).length ? v : deleteField();
+  if (salvamentoEmAndamento) return false;
+  await requireEditor(SALA_ID);
+  if (!modoEdicao || !loaded || loaded.month !== mesAnoKey()) throw new Error('Carregue o mês antes de salvar.');
+  validarLimitesDeAlteracaoDasRules();
+  salvamentoEmAndamento = true;
+  const controls = [...document.querySelectorAll('button,textarea,input')];
+  const disabled = controls.map(el => el.disabled);
+  controls.forEach(el => el.disabled = true);
+  try {
+    const month = mesAnoKey();
+    const payload = {
+      avisos: campoAvisos.value.trim(),
+      detalhes: structuredClone(estadoDetalhes),
+      materias: structuredClone(estadoMaterias),
+      fotos: structuredClone(estadoFotos),
+      revision: (loaded.data.revision || 0) + 1
+    };
+    const reference = doc(db, 'salas', SALA_ID, 'calendario', month);
+    await runTransaction(db, async tx => {
+      const snap = await tx.get(reference);
+      const remote = snap.exists() ? snap.data() : {};
+      if (stableJson(remote) !== stableJson(loaded.data)) throw new Error('Outra pessoa alterou este mês. Recarregue e confira antes de salvar.');
+      // Preserva campos legados desconhecidos e substitui mapas inteiros para permitir remoções.
+      tx.set(reference, { ...remote, ...payload });
+    });
+    loaded.data = { ...loaded.data, ...payload };
+    const events = detectarNovosEventos();
+    window._snapshotMaterias = structuredClone(estadoMaterias);
+    if (events.length && window.notificarNovosEventos) {
+      try { await window.notificarNovosEventos(events); }
+      catch (e) { console.warn(e); mostrarToast('Calendário salvo, mas o envio de push falhou.', 'warning'); }
     }
-  });
-
-  dados.fotos = {};
-  Object.entries(estadoFotos).forEach(([k, v]) => {
-    if (k.startsWith(mesAno.slice(0, 7))) {
-      dados.fotos[k] = v.length ? v : deleteField();
-    }
-  });
-
-  await setDoc(
-    doc(window.db, "salas", SALA_ID, "calendario", mesAno),
-    dados,
-    { merge: true }
-  );
-
-  // ↓ NOVO: dispara notificação se algo novo foi marcado pra um dia futuro
-  const eventosNovos = detectarNovosEventos();
-  if (eventosNovos.length > 0 && window.notificarNovosEventos) {
-    window.notificarNovosEventos(eventosNovos);
+    return true;
+  } finally {
+    salvamentoEmAndamento = false;
+    controls.forEach((el, i) => el.disabled = disabled[i]);
   }
-  // Atualiza a "foto" pro estado atual (em vez de zerar), pra evitar
-  // notificação duplicada caso o usuário salve de novo em seguida
-  // (ex: salvar no painel do dia e depois no botão de cima)
-  window._snapshotMaterias = JSON.parse(JSON.stringify(estadoMaterias));
 }
-
-
-/*MEU DEUS PFVR ME AJUDA */
 
 async function carregarCalendario() {
-  const mesAno = mesAnoKey();
-  const ref = doc(window.db, "salas", SALA_ID, "calendario", mesAno);
-  const snap = await getDoc(ref);
-
-  campoAvisos.value = "";
-  estadoDetalhes = {};
-  estadoMaterias = {};
-  estadoFotos = {};
-
-  if (!snap.exists()) return;
-  const dados = snap.data();
-
-  if (dados.avisos) campoAvisos.value = dados.avisos;
-
-  document.querySelectorAll("textarea[data-dia]").forEach(el => {
-    el.value = dados[el.dataset.dia] || "";
-    const diaDiv = el.closest(".dia");
-    if (el.value && diaDiv) diaDiv.classList.add("tem-conteudo");
-  });
-
-  if (dados.detalhes) Object.assign(estadoDetalhes, dados.detalhes);
-  if (dados.materias) Object.assign(estadoMaterias, dados.materias);
-  if (dados.fotos) Object.assign(estadoFotos, dados.fotos);
-
-  // Recria os dias com o estado atualizado (mostra a bolinha de conteúdo
-  // e os chips de matérias corretamente, já que os dados acabaram de chegar)
-  renderizarCalendario();
-
-  // Atualiza chips em todos os dias com matérias
-  Object.keys(estadoMaterias).forEach(diaISO => atualizarChipsDia(diaISO));
+  const sequence = ++loadSequence;
+  const month = mesAnoKey();
+  loaded = null;
+  btnEditar.disabled = true;
+  try {
+    const snap = await getDocFromServer(doc(db, 'salas', SALA_ID, 'calendario', month));
+    if (sequence !== loadSequence || month !== mesAnoKey() || !auth.currentUser) return;
+    const data = snap.exists() ? snap.data() : {};
+    loaded = { month, data };
+    campoAvisos.value = data.avisos || '';
+    estadoDetalhes = structuredClone(data.detalhes || {});
+    // Notas do formato antigo continuam visíveis e não são apagadas ao salvar.
+    for (const [key, value] of Object.entries(data)) if (/^\d{4}-\d{2}-\d{2}$/.test(key) && typeof value === 'string' && !estadoDetalhes[key]) estadoDetalhes[key] = value;
+    estadoMaterias = structuredClone(data.materias || {});
+    estadoFotos = structuredClone(data.fotos || {});
+    window._snapshotMaterias = structuredClone(estadoMaterias);
+    renderizarCalendario();
+    btnEditar.disabled = !canEdit(SALA_ID, claimsAtuais);
+  } catch (e) { if (sequence === loadSequence) mostrarToast('Não foi possível carregar o calendário. Tente novamente.', 'error'); }
 }
 
-
-/*AMEM ACABOU UMA PARTE, ESCUTE QUEM ESTIVER LENDO ISSO NAO ME JULGUE PELO HORROR QUE
-PODE ESTAR ESSE CODIGO */
 
 window.carregarCalendario = carregarCalendario;
 
 /* ──────────────────────────────────────────────
    NAVEGAÇÃO DE MÊS
 ────────────────────────────────────────────── */
-document.getElementById("mes-anterior").addEventListener("click", async () => {
-  dataAtual.setMonth(dataAtual.getMonth() - 1);
-  renderizarCalendario();
+async function mudarMes(delta) {
+  if (salvamentoEmAndamento) return;
+  if (modoEdicao && !confirm('Mudar de mês e descartar alterações não salvas?')) return;
+  modoEdicao = false; fecharPainel();
+  descartarAlteracoesFotosLocais();
+  dataAtual = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + delta, 1);
+  estadoMaterias = {}; estadoDetalhes = {}; estadoFotos = {}; campoAvisos.value = '';
+  atualizarModoEdicao(); renderizarCalendario();
   await carregarCalendario();
-});
-
-document.getElementById("mes-proximo").addEventListener("click", async () => {
-  dataAtual.setMonth(dataAtual.getMonth() + 1);
-  renderizarCalendario();
-  await carregarCalendario();
-});
+}
+document.getElementById('mes-anterior').addEventListener('click', () => mudarMes(-1));
+document.getElementById('mes-proximo').addEventListener('click', () => mudarMes(1));
+window.addEventListener('beforeunload', e => { if (modoEdicao || salvamentoEmAndamento) { e.preventDefault(); e.returnValue = ''; } });
 
 /* ──────────────────────────────────────────────
    MENU LATERAL
@@ -1025,23 +958,34 @@ const sidebarOverlay = document.getElementById("sidebar-overlay");
 menuBtn?.addEventListener("click", () => {
   const open = sidebar.classList.toggle("open");
   sidebarOverlay?.classList.toggle("show", open);
+  menuBtn.setAttribute("aria-expanded", String(open));
+  sidebarOverlay?.setAttribute("aria-hidden", String(!open));
 });
 
 sidebarOverlay?.addEventListener("click", () => {
   sidebar.classList.remove("open");
   sidebarOverlay.classList.remove("show");
+  menuBtn?.setAttribute("aria-expanded", "false");
+  sidebarOverlay.setAttribute("aria-hidden", "true");
 });
-/*02:54 e 1001 para mim isso é no minimo bonito */
-
-
-
-
 document.querySelectorAll(".sidebar a").forEach(a =>
   a.addEventListener("click", () => {
     sidebar.classList.remove("open");
     sidebarOverlay?.classList.remove("show");
+    menuBtn?.setAttribute("aria-expanded", "false");
+    sidebarOverlay?.setAttribute("aria-hidden", "true");
   })
 );
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && sidebar?.classList.contains("open")) {
+    sidebar.classList.remove("open");
+    sidebarOverlay?.classList.remove("show");
+    menuBtn?.setAttribute("aria-expanded", "false");
+    sidebarOverlay?.setAttribute("aria-hidden", "true");
+    menuBtn?.focus();
+  }
+});
 
 /* ──────────────────────────────────────────────
    TOAST
@@ -1051,7 +995,14 @@ function mostrarToast(msg, tipo = "info") {
   if (!container) return;
   const toast = document.createElement("div");
   toast.className = `toast ${tipo}`;
-  toast.textContent = msg;
+  const icones = {
+    success: '<path d="m5 12 4 4L19 6"/>',
+    error: '<circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/>',
+    warning: '<path d="M10.3 2.9 1.8 17a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 2.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4m0 4h.01"/>',
+    info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/>'
+  };
+  toast.innerHTML = `<svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icones[tipo] || icones.info}</svg><span></span>`;
+  toast.querySelector("span").textContent = msg;
   container.appendChild(toast);
   setTimeout(() => {
     toast.classList.add("saindo");
@@ -1062,7 +1013,7 @@ function mostrarToast(msg, tipo = "info") {
 /* ──────────────────────────────────────────────
    INICIALIZAÇÃO
 ────────────────────────────────────────────── */
-// O calendário é renderizado e carregado dentro do onAuthStateChanged acima.
+// O calendário é renderizado e carregado pelo observador de sessão acima.
 // Renderiza a estrutura vazia imediatamente para não mostrar tela em branco.
 renderizarCalendario();
-initNotificacoes();
+initNotificacoes(SALA_ID);
