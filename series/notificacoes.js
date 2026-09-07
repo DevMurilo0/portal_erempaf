@@ -1,3 +1,4 @@
+import { auth, emulators, requireEditor } from '../shared/firebase.js';
 /* ──────────────────────────────────────────────
    notificacoes.js
    Botão "Ativar notificações" + disparo de eventos
@@ -30,10 +31,16 @@ const VAPID_KEY = "BEiUVJTzBgQOWKT0Oa9SCppUYu5AxGQq0ofDwVCgP2uPGunn3TQAGV5_z1txO
 ────────────────────────────────────────────── */
 const API_URL = "https://erempafbackend.netlify.app/.netlify/functions";
 
-const LOCAL_KEY = `erempaf_notif_${SALA_ID}`;
+let SALA_ID;
+let LOCAL_KEY;
 const DEVICE_ID_KEY = "erempaf_device_id";
 
 let tokenAtual = null;
+const BELL_ICON = '<svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>';
+
+function definirConteudoBotao(btn, texto) {
+    btn.innerHTML = `${BELL_ICON}<span>${texto}</span>`;
+}
 
 /* ──────────────────────────────────────────────
    ID FIXO DO APARELHO
@@ -89,9 +96,12 @@ async function obterToken() {
 
 async function ativar(btn) {
     btn.disabled = true;
-    btn.textContent = "⏳ Ativando...";
+    definirConteudoBotao(btn, "Ativando...");
 
     try {
+        if (emulators) throw new Error('Push real desativado nos emuladores.');
+        if (!auth.currentUser) throw new Error('Faça login antes de ativar notificações.');
+        if (!('Notification' in window)) throw new Error('Navegador sem suporte a push.');
         const permissao = await Notification.requestPermission();
         if (permissao !== "granted") {
             throw new Error("Permissão negada. Ative nas configurações do navegador.");
@@ -99,17 +109,18 @@ async function ativar(btn) {
 
         const token = await obterToken();
         const deviceId = obterDeviceId();
+        if (!auth.currentUser) throw new Error('Faça login para gerenciar notificações.');
 
         await setDoc(
             doc(window.db, "inscricoes", deviceId),
-            { token, turmas: arrayUnion(SALA_ID), atualizadoEm: serverTimestamp() },
+            { token, ownerUid: auth.currentUser.uid, turmas: arrayUnion(SALA_ID), atualizadoEm: serverTimestamp() },
             { merge: true }
         );
 
         marcarLocal(true);
-        toast("🔔 Notificações ativadas para esta turma!", "success");
+        toast("Notificações ativadas para esta turma.", "success");
     } catch (e) {
-        toast("❌ " + e.message, "error");
+        toast(e.message, "error");
     }
 
     atualizarVisual(btn);
@@ -117,21 +128,22 @@ async function ativar(btn) {
 
 async function desativar(btn) {
     btn.disabled = true;
-    btn.textContent = "⏳...";
+    definirConteudoBotao(btn, "Desativando...");
 
     try {
         const deviceId = obterDeviceId();
+        if (!auth.currentUser) throw new Error('Faça login para gerenciar notificações.');
 
         await setDoc(
             doc(window.db, "inscricoes", deviceId),
-            { turmas: arrayRemove(SALA_ID), atualizadoEm: serverTimestamp() },
+            { token: await obterToken(), ownerUid: auth.currentUser.uid, turmas: arrayRemove(SALA_ID), atualizadoEm: serverTimestamp() },
             { merge: true }
         );
 
         marcarLocal(false);
-        toast("🔕 Notificações desativadas para esta turma.", "info");
+        toast("Notificações desativadas para esta turma.", "info");
     } catch (e) {
-        toast("❌ " + e.message, "error");
+        toast(e.message, "error");
     }
 
     atualizarVisual(btn);
@@ -140,17 +152,18 @@ async function desativar(btn) {
 function atualizarVisual(btn) {
     btn.disabled = false;
     if (estaAtivoNesteAparelho()) {
-        btn.textContent = "🔔 Ativado";
+        definirConteudoBotao(btn, "Ativadas");
         btn.classList.add("notif-ativo");
     } else {
-        btn.textContent = "🔕 Notificações";
+        definirConteudoBotao(btn, "Notificações");
         btn.classList.remove("notif-ativo");
     }
 }
 
-export function initNotificacoes() {
+export function initNotificacoes(turma) {
+    SALA_ID = turma; LOCAL_KEY = `erempaf_notif_${turma}`;
     const acoes = document.querySelector(".topo-acoes");
-    if (!acoes) return;
+    if (!acoes || document.getElementById("btn-notif")) return;
 
     const btn = document.createElement("button");
     btn.id = "btn-notif";
@@ -171,14 +184,13 @@ export function initNotificacoes() {
    quando existem eventos novos/alterados.
 ────────────────────────────────────────────── */
 window.notificarNovosEventos = async function (eventos) {
-    try {
-        await fetch(`${API_URL}/notificar-imediato`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ turma: SALA_ID, eventos })
-        });
-    } catch (e) {
-        console.warn("Não foi possível notificar:", e);
-    }
+    if (emulators) return;
+    const user = await requireEditor(SALA_ID);
+    const response = await fetch(`${API_URL}/notificar-imediato`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await user.getIdToken()}` },
+        body: JSON.stringify({ turma: SALA_ID, eventos }),
+        signal: AbortSignal.timeout(15000)
+    });
+    if (!response.ok) throw new Error(`Push respondeu HTTP ${response.status}`);
 };
-

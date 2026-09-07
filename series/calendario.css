@@ -1618,3 +1618,101 @@ main {
 #btn-notif.notif-ativo:hover {
   background: var(--red-mid);
 }
+
+/* Refinamento compartilhado — todas as turmas */
+.ui-icon, .toast-icon { width: 1.15em; height: 1.15em; flex: 0 0 auto; display: inline-block; vertical-align: -.18em; }
+button .ui-icon, h2 .ui-icon, .painel-kicker .ui-icon { margin-right: 7px; }
+.menu-btn .ui-icon { margin: 0; width: 22px; height: 22px; }
+.login-icon .ui-icon { width: 28px; height: 28px; margin: 0; }
+
+button, input, textarea { font: inherit; }
+button { min-height: 40px; }
+:focus-visible { outline: 3px solid var(--red-bright); outline-offset: 3px; }
+html { scrollbar-gutter: stable; }
+body { overflow-x: hidden; }
+
+.topo { gap: 18px; backdrop-filter: blur(14px); }
+.topo-acoes { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.topo-acoes button, #btn-notif { display: inline-flex; align-items: center; justify-content: center; gap: 0; border-radius: var(--radius-md); }
+.avisos, .calendario, .painel-conteudo, .login-box { box-shadow: 0 16px 42px rgba(0,0,0,.18); }
+.avisos h2 { display: flex; align-items: center; }
+.calendario-wrap { width: 100%; min-width: 0; }
+.dia { min-width: 0; }
+.painel-tabs { overflow-x: auto; scrollbar-width: thin; }
+.tab-btn { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; min-height: 46px; }
+.btn-painel, .btn-upload-foto { min-height: 44px; }
+.btn-remover-foto { opacity: 1; min-height: 30px; width: 30px; height: 30px; }
+
+.toast-container { right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); width: min(380px, calc(100vw - 32px)); }
+.toast { width: 100%; min-width: 0; padding: 12px 14px; background: color-mix(in srgb, var(--bg-card2) 92%, black); box-shadow: 0 12px 32px rgba(0,0,0,.28); }
+.toast-icon { width: 20px; height: 20px; }
+.toast.success { border-left-color: #46c978; }
+.toast.error { border-left-color: #ff6b6b; }
+.toast.warning { border-left: 3px solid #f6c85f; }
+.toast.info { border-left-color: var(--red-bright); }
+
+#btn-notif { gap: 7px; }
+
+@media (max-width: 768px) {
+  .topo { align-items: center; }
+  .topo-acoes { gap: 6px; }
+  .topo-acoes button, #btn-notif { padding: 9px 11px; font-size: 12px; }
+  .painel-conteudo { width: min(94vw, 720px); max-height: calc(100dvh - 24px); }
+}
+
+@media (max-width: 560px) {
+  header.topo { display: grid; grid-template-columns: auto minmax(0, 1fr); padding: 10px 12px; }
+  .topo-acoes { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+  .topo-acoes button, #btn-notif { width: 100%; min-width: 0; padding: 9px 7px; }
+  .avisos { border-radius: var(--radius-md); }
+  .controle-mes { gap: 10px; }
+  .controle-mes button { width: 44px; height: 44px; }
+  main { padding: 0 8px; }
+  .calendario { min-width: 0; }
+  .cabecalho span { font-size: 10px; }
+  .dias { gap: 2px; }
+  .dia { min-height: 78px; padding: 5px 3px; border-radius: 5px; }
+  .dia-numero { font-size: 12px; }
+  .chip-materia { max-width: 100%; padding: 1px 3px; font-size: 7px; }
+  .dia textarea { display: none; }
+  .painel-detalhes { align-items: flex-end; padding: 0; }
+  .painel-conteudo { width: 100%; max-width: none; max-height: 94dvh; border-radius: 18px 18px 0 0; }
+  .painel-header { padding: 16px; }
+  .painel-tabs { padding: 0 8px; }
+  .tab-btn { padding: 11px 10px; font-size: 12px; }
+  .painel-body { padding: 16px; }
+  .painel-footer { padding: 12px 16px max(12px, env(safe-area-inset-bottom)); }
+  .fotos-galeria { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 360px) {
+  .topo-acoes { grid-template-columns: 1fr 1fr; }
+  #btn-notif { grid-column: 1 / -1; }
+  .tab-btn { font-size: 11px; padding-inline: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+
+/* Agenda mobile: mesmos dias/dados/painel, sem rolagem horizontal. */
+.dia-semana-mobile { display: none; }
+.materia-item, .materia-bloco-header { color: inherit; font: inherit; text-align: left; }
+.materia-bloco-header { width: 100%; }
+:focus-visible { outline: 3px solid var(--red-bright, #ffdc80); outline-offset: 3px; }
+@media (max-width: 600px) {
+  .calendario-wrap { overflow: visible; }
+  .calendario { min-width: 0; }
+  .calendario .cabecalho, .dias .dia.vazio { display: none; }
+  .calendario .dias { display: flex; flex-direction: column; gap: 10px; }
+  .dias .dia { width: 100%; min-height: 95px; padding: 12px; }
+  .dia-semana-mobile { display: inline; font-size: 14px; margin-right: auto; }
+  .dias .numero { font-size: 20px; }
+  .dias .dia-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .dias .chip-materia { font-size: 12px; max-width: 100%; white-space: normal; }
+  .dias .dia-nota-preview { display: block; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; -webkit-line-clamp: unset; max-height: none; }
+  .dias .btn-detalhes { display: inline-flex; position: static; min-width: 44px; min-height: 44px; opacity: 1; }
+  .topo-acoes { flex-wrap: wrap; }
+  .topo-acoes button, .painel-tabs button { min-height: 44px; }
+  .painel-conteudo { max-width: 100%; }
+}

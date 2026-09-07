@@ -4,6 +4,18 @@
   <meta charset="UTF-8">
   <title>Cardápio — EREMPAF</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="apple-touch-icon" href="/logo.png">
+  <meta name="theme-color" content="#1a3c8f">
+  <meta name="description" content="Portal da Escola de Referência do Ensino Médio Professor Antônio Farias.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Portal EREMPAF">
+  <meta property="og:title" content="Cardápio — EREMPAF">
+  <meta property="og:description" content="Portal da Escola de Referência do Ensino Médio Professor Antônio Farias.">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Cardápio — EREMPAF">
+  <meta name="twitter:description" content="Portal da Escola de Referência do Ensino Médio Professor Antônio Farias.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
@@ -15,7 +27,7 @@
   <header class="header">
     <div class="header-inner">
       <div class="header-brand">
-        <img src="../logo.png" alt="Logo EREMPAF" class="header-logo">
+        <img src="../logo.png" alt="Logo EREMPAF" class="header-logo" width="256" height="256" decoding="async">
         <div class="header-text">
           <h1 class="header-title">EREMPAF - Escola de Referência do<br>Ensino Médio Professor Antônio Farias</h1>
           <div class="header-bar"></div>
@@ -29,7 +41,7 @@
   <nav class="nav">
     <div class="nav-inner">
       <a href="../index.html" class="nav-link">Início</a>
-      <a href="cardapio.html" class="nav-link active">Cardápio</a>
+      <a href="/cardapio/index.html" class="nav-link active">Cardápio</a>
       <a href="https://www.siepe.educacao.pe.gov.br/" target="_blank" class="nav-link">Notas</a>
       <a href="../sobre/sobre.html" class="nav-link">Sobre</a>
       <a href="../contato/contato.html" class="nav-link">Contato</a>
@@ -89,7 +101,7 @@
   <!-- MODAL: SENHA -->
   <div id="modal-senha" class="modal-overlay hidden">
     <div class="modal-box">
-      <div class="modal-icon-wrap">🔐</div>
+      <div class="modal-icon-wrap"><svg class="ui-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
       <h2 class="modal-titulo">Acesso à Edição</h2>
       <p class="modal-sub">Digite a senha para editar o cardápio</p>
       <div class="input-group">
@@ -105,7 +117,7 @@
   </div>
 
   <!-- TOAST -->
-  <div id="toasts" class="toast-container"></div>
+  <div id="toasts" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
   <!-- FOOTER -->
   <footer class="footer">
@@ -126,7 +138,7 @@
       <div class="footer-col footer-col-pe">
         <h3 class="footer-heading">Secretaria de Educação</h3>
         <div class="pe-brand">
-          <img src="../assets/pe-logo.svg" alt="Brasão de Pernambuco" class="pe-logo" onerror="this.style.display='none'">
+          <img src="../assets/pe-logo.png" alt="Brasão de Pernambuco" class="pe-logo" width="256" height="256" loading="lazy" decoding="async" onerror="this.style.display='none'">
           <div class="pe-text">
             <span class="pe-gov">GOVERNO DO ESTADO</span>
             <span class="pe-name">PERNAMBUCO</span>

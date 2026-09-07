@@ -5,6 +5,18 @@
   <meta charset="UTF-8">
   <title>Portal EREMPAF</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/logo.png">
+  <link rel="apple-touch-icon" href="/logo.png">
+  <meta name="theme-color" content="#1a3c8f">
+  <meta name="description" content="Calendários das turmas, atividades, avisos e cardápio da Escola de Referência em Ensino Médio Professor Antônio Farias.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Portal EREMPAF">
+  <meta property="og:title" content="Portal EREMPAF">
+  <meta property="og:description" content="Calendários das turmas, atividades, avisos e cardápio da Escola de Referência em Ensino Médio Professor Antônio Farias.">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Portal EREMPAF">
+  <meta name="twitter:description" content="Calendários das turmas, atividades, avisos e cardápio da Escola de Referência em Ensino Médio Professor Antônio Farias.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -19,7 +31,7 @@
   <header class="header">
     <div class="header-inner">
       <div class="header-brand">
-        <img src="logo.png" alt="Logo EREMPAF" class="header-logo">
+        <img width="256" height="256" decoding="async" src="logo.png" alt="Logo EREMPAF" class="header-logo">
         <div class="header-text">
           <h1 class="header-title">EREMPAF - Escola de Referência do<br>Ensino Médio Professor Antônio Farias</h1>
           <div class="header-bar"></div>
@@ -30,7 +42,7 @@
   </header>
 
   <!-- NAV -->
-  <nav class="nav">
+  <nav class="nav" aria-label="Navegação principal">
     <div class="nav-inner">
       <a href="#" class="nav-link active">Início</a>
       <a href="cardapio/index.html" class="nav-link">Cardápio</a>
@@ -46,31 +58,33 @@
     <div class="main-inner">
 
       <!-- CARROSSEL -->
-      <div class="carrossel">
+      <section class="carrossel" aria-label="Destaques da escola">
         <div class="carrossel-track" id="carrosselTrack">
           <!-- Slides: coloque imagens dentro de .slide -->
           <div class="slide slide-placeholder">
-            <span class="placeholder-text">Imagem 1</span>
+            <div class="slide-content"><span class="slide-eyebrow">Portal EREMPAF</span><strong>Informação escolar em um só lugar</strong><p>Acompanhe avisos, atividades e conteúdos da sua turma.</p></div>
           </div>
           <div class="slide slide-placeholder">
-            <span class="placeholder-text">Imagem 2</span>
+            <div class="slide-content"><span class="slide-eyebrow">Organização</span><strong>Seu calendário sempre acessível</strong><p>Consulte compromissos e matérias em qualquer dispositivo.</p></div>
           </div>
           <div class="slide slide-placeholder">
-            <span class="placeholder-text">Imagem 3</span>
+            <div class="slide-content"><span class="slide-eyebrow">Comunidade escolar</span><strong>Conexão que facilita a rotina</strong><p>Um portal feito para estudantes, responsáveis e educadores.</p></div>
           </div>
         </div>
-        <button class="carrossel-btn carrossel-prev" onclick="moverCarrossel(-1)">&#8249;</button>
-        <button class="carrossel-btn carrossel-next" onclick="moverCarrossel(1)">&#8250;</button>
+        <button class="carrossel-btn carrossel-prev" onclick="moverCarrossel(-1)" aria-label="Destaque anterior">&#8249;</button>
+        <button class="carrossel-btn carrossel-next" onclick="moverCarrossel(1)" aria-label="Próximo destaque">&#8250;</button>
         <div class="carrossel-dots" id="carrosselDots"></div>
-      </div>
+      </section>
 
       <!-- FORM -->
-      <div class="portal-card">
-        <h2 class="portal-title">Acessar o Portal</h2>
+      <section class="portal-card" aria-labelledby="portal-title">
+        <span class="portal-eyebrow">Área das turmas</span>
+        <h2 class="portal-title" id="portal-title">Acessar o Portal</h2>
+        <p class="portal-description">Selecione sua série e turma para abrir o calendário.</p>
 
         <div class="select-group">
           <div class="select-wrap">
-            <select id="serie" onchange="atualizarTurmas()">
+            <label for="serie">Série</label><select id="serie" onchange="atualizarTurmas()" aria-describedby="aviso-erro">
               <option value="">Série</option>
               <option value="1ano">1º Ano</option>
               <option value="2ano">2º Ano</option>
@@ -82,7 +96,7 @@
 
         <div class="select-group">
           <div class="select-wrap">
-            <select id="turma">
+            <label for="turma">Turma</label><select id="turma" aria-describedby="aviso-erro">
               <option value="">Turma</option>
             </select>
             <span class="select-arrow">&#8964;</span>
@@ -90,10 +104,10 @@
         </div>
 
         <button class="btn-acessar" onclick="acessar()">Acessar</button>
-        <p id="aviso-erro" class="aviso-erro"></p>
+        <p id="aviso-erro" class="aviso-erro" role="alert" aria-live="polite"></p>
 
         <div class="portal-footer-bar"></div>
-      </div>
+      </section>
 
     </div>
   </main>
@@ -114,7 +128,7 @@
         <ul class="footer-links">
           <li><a href="#">&#8250; Início</a></li>
           <li><a href="https://www.siepe.educacao.pe.gov.br/" target="_blank">&#8250; Notas</a></li>
-          <li><a href="/cardapio/cardapio.html">&#8250; Cardápio</a></li>
+          <li><a href="/cardapio/index.html">&#8250; Cardápio</a></li>
           <li><a href="/contato/contato.html">&#8250; Contato</a></li>
         </ul>
       </div>
@@ -122,7 +136,7 @@
       <div class="footer-col footer-col-pe">
         <h3 class="footer-heading">Secretaria de Educação</h3>
         <div class="pe-brand">
-          <img src="assets/pe-logo.svg" alt="Brasão de Pernambuco" class="pe-logo" onerror="this.style.display='none'">
+          <img src="assets/pe-logo.png" alt="Brasão de Pernambuco" class="pe-logo" width="256" height="256" loading="lazy" decoding="async" onerror="this.style.display='none'">
           <div class="pe-text">
             <span class="pe-gov">GOVERNO DO ESTADO</span>
             <span class="pe-name">PERNAMBUCO</span>
@@ -139,7 +153,7 @@
     </div>
   </footer>
 
-  <script src="script.js"></script>
+  <script type="module" src="script.js"></script>
   <script>
     // Carrossel
     let slideAtual = 0;
@@ -150,6 +164,7 @@
     slides.forEach((_, i) => {
       const dot = document.createElement("button");
       dot.className = "carrossel-dot" + (i === 0 ? " ativo" : "");
+      dot.setAttribute("aria-label", `Ir para o destaque ${i + 1}`);
       dot.onclick = () => irParaSlide(i);
       dotsContainer.appendChild(dot);
     });
@@ -164,7 +179,16 @@
 
     function moverCarrossel(dir) { irParaSlide(slideAtual + dir); }
 
-    setInterval(() => moverCarrossel(1), 5000);
+    // Pausa para leitura e respeita a preferência por menos movimento.
+    const carousel = document.querySelector('.carrossel');
+    let paused = false;
+    carousel.addEventListener('focusin', () => paused = true);
+    carousel.addEventListener('focusout', () => paused = false);
+    carousel.addEventListener('mouseenter', () => paused = true);
+    carousel.addEventListener('mouseleave', () => paused = false);
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => {
+      if (!paused && !document.hidden) moverCarrossel(1);
+    }, 5000);
   </script>
 </body>
 

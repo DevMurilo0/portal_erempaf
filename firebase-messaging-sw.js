@@ -39,17 +39,21 @@ messaging.onBackgroundMessage((payload) => {
         badge: "/logo.png",
         data: { url: dados.url || "/" }
     };
-    self.registration.showNotification(titulo, opcoes);
+    return self.registration.showNotification(titulo, opcoes);
 });
 
 // Clique na notificação leva direto pra turma certa
 self.addEventListener("notificationclick", (event) => {
     event.notification.close();
-    const url = event.notification.data?.url || "/";
+    let target;
+    try { target = new URL(event.notification.data?.url || '/', self.location.origin); }
+    catch { target = new URL('/', self.location.origin); }
+    if (target.origin !== self.location.origin) target = new URL('/', self.location.origin);
+    const url = target.href;
     event.waitUntil(
         clients.matchAll({ type: "window", includeUncontrolled: true }).then((janelas) => {
             for (const janela of janelas) {
-                if (janela.url.includes(url) && "focus" in janela) return janela.focus();
+                if (janela.url === url && "focus" in janela) return janela.focus();
             }
             if (clients.openWindow) return clients.openWindow(url);
         })

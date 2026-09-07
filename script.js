@@ -1,9 +1,6 @@
 // Turmas disponíveis por série
-const turmasPorSerie = {
-  "1ano": ["a","b","c","d","e"],
-  "2ano": ["a","b","c","d","e"],
-  "3ano": ["a","b","c","d"]
-};
+import { TURMAS } from './config/turmas.js';
+const turmasPorSerie = TURMAS.reduce((map, t) => { (map[t.serie] ||= []).push(t); return map; }, {});
 
 function atualizarTurmas() {
   const serie = document.getElementById("serie").value;
@@ -15,8 +12,8 @@ function atualizarTurmas() {
   if (serie && turmasPorSerie[serie]) {
     turmasPorSerie[serie].forEach(t => {
       const opt = document.createElement("option");
-      opt.value = t;
-      opt.textContent = `Turma ${t.toUpperCase()}`;
+      opt.value = t.turma;
+      opt.textContent = `Turma ${t.turma.toUpperCase()}`;
       turmaSelect.appendChild(opt);
     });
   }
@@ -27,11 +24,12 @@ function acessar() {
   const turma = document.getElementById("turma").value;
 
   if (!serie || !turma) {
-    mostrarErro("⚠️ Selecione a série e a turma!");
+    mostrarErro("Selecione a série e a turma para continuar.");
     return;
   }
 
-  window.location.href = `/series/${serie}/${turma}/index.html`;
+  const entry = TURMAS.find(t => t.serie === serie && t.turma === turma);
+  if (entry) window.location.href = entry.path;
 }
 
 function mostrarErro(msg) {
@@ -51,3 +49,5 @@ function mostrarErro(msg) {
   aviso.textContent = msg;
   setTimeout(() => aviso && (aviso.textContent = ""), 3000);
 }
+
+Object.assign(window, { atualizarTurmas, acessar });

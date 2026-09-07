@@ -550,3 +550,24 @@ body {
 
 @keyframes slideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 @keyframes fadeOut { to   { opacity:0; transform:translateY(6px); } }
+/* Modernização visual compartilhada */
+:root { --surface-border:#dbe2ee; --soft-shadow:0 10px 30px rgba(18,45,110,.10); --radius-lg:14px; }
+*,*::before,*::after { box-sizing:border-box; }
+body { overflow-x:hidden; line-height:1.5; }
+button,input,textarea { font:inherit; }
+:focus-visible { outline:3px solid rgba(240,192,48,.8); outline-offset:3px; }
+.header { background:linear-gradient(110deg,#122d6e,#1a3c8f); }
+.nav-inner { overflow-x:auto; scrollbar-width:none; }
+.nav-link { white-space:nowrap; }
+.page-hero-inner { gap:20px; }
+.page-hero-title,.btn-editar-cardapio,.modal-icon-wrap,.status-btn,.btn-primary { display:flex;align-items:center;gap:8px; }
+.ui-icon { width:1.15em;height:1.15em;flex:0 0 auto; }
+.dias-grid { grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; }
+.dia-card,.semana-nav,.modal-box { border-radius:var(--radius-lg); box-shadow:var(--soft-shadow); }
+button { min-height:42px; }
+input,textarea { max-width:100%; }
+.toast-container { width:min(380px,calc(100vw - 32px)); right:16px;bottom:16px; }
+.toast { width:100%;min-width:0;border-radius:10px;box-shadow:0 12px 30px rgba(18,45,110,.18); }
+@media(max-width:900px){.dias-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dia-card:last-child{grid-column:1/-1}.page-hero-inner{align-items:center}}
+@media(max-width:600px){.header-inner,.main-inner,.page-hero-inner{padding-left:16px;padding-right:16px}.header-title{font-size:13px}.header-title br{display:none}.header-logo{width:56px;height:56px}.nav-inner{padding:0 6px}.nav-link{padding:12px 14px}.page-hero-inner{flex-direction:column;align-items:stretch}.btn-editar-cardapio{justify-content:center;width:100%}.dias-grid{grid-template-columns:1fr}.dia-card:last-child{grid-column:auto}.modal-overlay{padding:12px}.modal-box{width:100%;max-height:calc(100dvh - 24px);overflow-y:auto}.modal-actions{position:sticky;bottom:0;background:inherit;padding-top:8px}.footer-inner{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
