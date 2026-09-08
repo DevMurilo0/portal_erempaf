@@ -209,6 +209,17 @@ body {
   border: 2px dashed var(--azul);
 }
 
+.membro-foto {
+  display: block;
+  width: 84px;
+  height: 84px;
+  border: 2px dashed var(--azul);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.membro-foto-murilo { object-position: 50% 26%; }
+
 .membro-placeholder .membro-foto-placeholder {
   color: #b3bbcc;
   border-color: #c5cbdb;
