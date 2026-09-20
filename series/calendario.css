@@ -1,3 +1,5 @@
+@import url("../acabamento.css");
+
 /* ============================================
    CALENDÁRIO EREMPAF — Versão Melhorada
    ============================================ */
@@ -1833,3 +1835,123 @@ body { overflow-x: hidden; }
   .painel-conteudo { max-width: 100%; }
 }
 
+
+/* Acabamento tonal: herda a identidade de cada turma sem alterar sua paleta. */
+body {
+  --text-secondary: #e3e9e6;
+  --text-muted: #c4d0c9;
+  --border: rgba(235,245,240,.14);
+  --border-lg: rgba(235,245,240,.28);
+  --shadow-card: 0 3px 8px rgba(0,0,0,.07), 0 16px 36px rgba(0,0,0,.14);
+  --shadow-red: 0 3px 10px rgba(0,0,0,.14);
+  background-image: radial-gradient(ellipse at 8% 0%, rgba(255,255,255,.075), transparent 55%), radial-gradient(ellipse at 100% 65%, rgba(0,0,0,.12), transparent 65%);
+  line-height: 1.55;
+}
+header.topo {
+  background: linear-gradient(115deg, rgba(255,255,255,.025), rgba(0,0,0,.12)), var(--bg-dark);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 4px 18px rgba(0,0,0,.12);
+}
+#titulo-turma { font-size: 1.15rem; letter-spacing: -.025em; line-height: 1.4; }
+.breadcrumb { font-size: 10px; letter-spacing: .08em; margin-bottom: 3px; }
+.sidebar { box-shadow: 12px 0 40px rgba(0,0,0,.22); }
+.sidebar a:hover { background: rgba(255,255,255,.065); }
+button { transition: background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, color 180ms ease; }
+button:active:not(:disabled) { box-shadow: inset 0 2px 5px rgba(0,0,0,.16); }
+#btn-editar, #btn-salvar, #btn-login, .btn-painel-salvar {
+  background: var(--red-bright);
+  color: #15241c;
+  box-shadow: inset 0 1px rgba(255,255,255,.18), 0 3px 10px rgba(0,0,0,.12);
+}
+#btn-editar:hover:not(:disabled), #btn-salvar:hover:not(:disabled), #btn-login:hover:not(:disabled), .btn-painel-salvar:hover:not(:disabled) { background: var(--text-primary); color: #15241c; }
+#btn-editar:disabled, #btn-salvar:disabled { background: var(--bg-card2); color: var(--text-muted); box-shadow: none; }
+#btn-notif { background: rgba(255,255,255,.035); }
+#btn-notif.notif-ativo { background: var(--bg-card2); border-color: var(--red-bright); color: var(--text-primary); box-shadow: none; }
+#btn-notif:disabled { opacity: 1; color: var(--text-muted); border-style: dashed; }
+.avisos {
+  background: linear-gradient(110deg, rgba(255,255,255,.045), transparent), var(--bg-dark);
+  border-left: 3px solid var(--red-bright);
+  border-radius: 4px 12px 12px 4px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.07);
+  padding-block: 16px;
+}
+.avisos h2 { color: var(--text-primary); font-size: 11px; letter-spacing: .09em; }
+.controle-mes { background: linear-gradient(rgba(255,255,255,.025), transparent), var(--bg-dark); box-shadow: inset 0 1px rgba(255,255,255,.035); }
+#mes-ano { letter-spacing: -.015em; }
+.calendario-wrap { background: var(--bg-dark); box-shadow: var(--shadow-card); }
+.calendario { box-shadow: none; }
+.cabecalho span { color: var(--text-secondary); background: rgba(0,0,0,.12); padding-block: 14px; }
+.dia { background: linear-gradient(150deg, rgba(255,255,255,.035), rgba(0,0,0,.04)), var(--bg-card); transition: background-color 180ms ease, box-shadow 180ms ease; }
+.dia:hover { background-color: var(--bg-hover); }
+.dia.tem-conteudo { background-image: linear-gradient(145deg, rgba(255,255,255,.07), transparent 75%); }
+.dia.hoje { background: linear-gradient(140deg, rgba(255,255,255,.09), transparent), var(--bg-dark); border-color: var(--border) !important; box-shadow: inset 0 0 0 2px var(--red-bright); }
+.numero { color: var(--text-primary); font-variant-numeric: tabular-nums; }
+.hoje-badge { background: var(--red-bright); color: #15241c; font-weight: 700; }
+.dia-dot { background: var(--red-bright); box-shadow: 0 0 0 2px rgba(255,255,255,.075); }
+.chip-materia { background: rgba(0,0,0,.12); color: var(--text-primary); border-color: var(--border); border-left: 2px solid var(--red-bright); font-size: 10px; line-height: 1.4; }
+.dia-nota-preview { line-height: 1.55; }
+/* O foco permanece visível mesmo quando o botão transparente cobre o dia no mobile. */
+.dia:focus-within { outline: 2px solid var(--text-primary); outline-offset: -4px; }
+.login-overlay, .painel-detalhes { background: rgba(4,12,9,.64); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.login-overlay { padding: 16px; }
+.login-box, .painel-conteudo {
+  background: linear-gradient(145deg, rgba(255,255,255,.045), transparent 60%), var(--bg-dark);
+  border-color: var(--border-lg);
+  box-shadow: 0 8px 24px rgba(0,0,0,.16), 0 30px 80px rgba(0,0,0,.28);
+}
+.login-box { max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; padding: 30px 26px; border-radius: 18px; }
+.login-box h2, #titulo-detalhes { letter-spacing: -.025em; line-height: 1.4; }
+.login-box .login-sub { line-height: 1.65; }
+.login-box input, #campo-detalhes { background: rgba(0,0,0,.1); border-color: var(--border-lg); }
+.login-box input:focus, #campo-detalhes:focus { border-color: var(--red-bright); box-shadow: 0 0 0 3px rgba(255,255,255,.07); }
+input:focus-visible, textarea:focus-visible { outline: 2px solid var(--red-bright); outline-offset: 3px; }
+.painel-body { min-height: 0; overscroll-behavior: contain; }
+.painel-header { background: rgba(255,255,255,.02); gap: 12px; }
+.painel-header-left { min-width: 0; }
+.painel-tabs { background: rgba(0,0,0,.06); }
+.tab-btn { color: var(--text-secondary); }
+.tab-btn.active { color: var(--text-primary); border-bottom-color: var(--red-bright); background: rgba(255,255,255,.045); }
+.tab-btn:hover:not(.active) { background: rgba(255,255,255,.03); color: var(--text-primary); }
+.btn-fechar-painel { width: 44px; height: 44px; }
+.materia-item.checked { background: rgba(255,255,255,.07); border-color: var(--red-bright); }
+.materia-bloco-header { background: rgba(255,255,255,.035); }
+.materia-bloco-header:hover { background: rgba(255,255,255,.07); }
+.stat-card { border-width: 0 0 1px; border-radius: 0; background: transparent; }
+.stat-num { line-height: 1.2; }
+.foto-item { box-shadow: 0 3px 10px rgba(0,0,0,.12); }
+.foto-item:focus-within .btn-remover-foto { opacity: 1; }
+#modal-desc-preview { flex-shrink: 0; }
+@keyframes scaleIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 600px) {
+  html { scrollbar-gutter: auto; }
+  header.topo { gap: 10px; }
+  .avisos { margin: 12px 10px; padding: 12px 14px; }
+  .controle-mes { margin-inline: 10px; }
+  .calendario .cabecalho span { font-size: 10px; padding-block: 10px; }
+  .dias .chip-materia { font-size: 8px; line-height: 1.25; }
+  .dias .dia-chips { max-height: 30px; }
+  .dias .hoje-badge { font-size: 7px; padding-inline: 2px; }
+  .dias .dia.hoje .dia-dot { display: none; }
+  .login-box { padding: 24px 18px; }
+  .login-box input, #campo-detalhes, .materia-bloco-desc { font-size: 16px; }
+  .painel-tabs { padding-inline: 8px; }
+  .tab-btn { flex: 0 0 auto; }
+  .painel-footer { flex-wrap: wrap; }
+  .login-box button { min-height: 44px; }
+}
+
+/* Estes dois botões são gerados com cores inline; ajuste apenas visual. */
+#confirmar-senha-edicao, #btn-desc-confirmar {
+  background: var(--red-bright) !important;
+  color: #15241c !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.18), 0 3px 10px rgba(0,0,0,.12);
+}
+#confirmar-senha-edicao:hover:not(:disabled), #btn-desc-confirmar:hover:not(:disabled) {
+  background: var(--text-primary) !important;
+}
+#cancelar-senha-edicao:hover, #btn-desc-cancelar:hover { background: rgba(255,255,255,.06) !important; }
+.topo-acoes button[hidden] { display: none; }
