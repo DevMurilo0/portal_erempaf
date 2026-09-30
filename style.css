@@ -1339,3 +1339,84 @@ select {
     height: 170px;
   }
 }
+
+
+/* ============================================================
+   Mapa do rodapé v2 — quadrado e à direita
+   ============================================================ */
+.footer-main--v2 {
+  grid-template-columns: minmax(230px, 1fr) minmax(380px, 1.55fr) minmax(240px, .95fr);
+}
+
+.footer-address {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "label map"
+    "address map"
+    "link map";
+  column-gap: 24px;
+  align-items: start;
+}
+
+.footer-address > .footer-eyebrow {
+  grid-area: label;
+}
+
+.footer-address > address {
+  grid-area: address;
+}
+
+.footer-address > a {
+  grid-area: link;
+  align-self: end;
+}
+
+.footer-address .footer-map {
+  grid-area: map;
+  width: 180px;
+  height: 180px;
+  max-width: none;
+  margin: 0;
+  justify-self: end;
+  align-self: start;
+  aspect-ratio: 1 / 1;
+  border: 1px solid #28436e;
+}
+
+.footer-address .footer-map iframe {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 900px) {
+  .footer-main--v2 {
+    grid-template-columns: 1fr 1.15fr;
+  }
+
+  .footer-address .footer-map {
+    width: 168px;
+    height: 168px;
+  }
+}
+
+@media (max-width: 680px) {
+  .footer-main--v2 {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-address {
+    grid-template-columns: minmax(0, 1fr) clamp(128px, 36vw, 150px);
+    column-gap: 18px;
+  }
+
+  .footer-address .footer-map {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .footer-address > address {
+    padding-right: 4px;
+  }
+}
