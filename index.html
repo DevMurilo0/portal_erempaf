@@ -1,196 +1,540 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
-  <title>Portal EREMPAF</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Portal EREMPAF — EREM Professor Antônio Farias</title>
+  <meta name="description" content="Site institucional e portal escolar da EREM Professor Antônio Farias, em Gravatá — PE. Acesse turmas, calendário, avisos, cardápio e informações da escola.">
+  <meta name="theme-color" content="#10275f">
+
   <link rel="icon" type="image/png" href="/logo.png">
   <link rel="apple-touch-icon" href="/logo.png">
-  <meta name="theme-color" content="#1a3c8f">
-  <meta name="description" content="Calendários das turmas, atividades, avisos e cardápio da Escola de Referência em Ensino Médio Professor Antônio Farias.">
+  <link rel="canonical" href="https://portalerempaf.vercel.app/">
+
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:site_name" content="Portal EREMPAF">
-  <meta property="og:title" content="Portal EREMPAF">
-  <meta property="og:description" content="Calendários das turmas, atividades, avisos e cardápio da Escola de Referência em Ensino Médio Professor Antônio Farias.">
+  <meta property="og:title" content="Portal EREMPAF — EREM Professor Antônio Farias">
+  <meta property="og:description" content="Site institucional e portal escolar da EREM Professor Antônio Farias, em Gravatá — PE.">
+  <meta property="og:url" content="https://portalerempaf.vercel.app/">
+  <meta property="og:image" content="https://portalerempaf.vercel.app/logo.png">
+  <meta property="og:image:alt" content="Logo da EREM Professor Antônio Farias">
+
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Portal EREMPAF">
-  <meta name="twitter:description" content="Calendários das turmas, atividades, avisos e cardápio da Escola de Referência em Ensino Médio Professor Antônio Farias.">
+  <meta name="twitter:title" content="Portal EREMPAF — EREM Professor Antônio Farias">
+  <meta name="twitter:description" content="Site institucional e portal escolar da EREM Professor Antônio Farias, em Gravatá — PE.">
+  <meta name="twitter:image" content="https://portalerempaf.vercel.app/logo.png">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="acabamento.css">
+
+  <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
+  <a class="skip-link" href="#conteudo">Ir para o conteúdo</a>
 
-  <!-- HEADER -->
-  <header class="header">
-    <div class="header-inner">
-      <div class="header-brand">
-        <img width="256" height="256" decoding="async" src="logo.png" alt="Logo EREMPAF" class="header-logo">
-        <div class="header-text">
-          <h1 class="header-title">EREMPAF - Escola de Referência do<br>Ensino Médio Professor Antônio Farias</h1>
-          <div class="header-bar"></div>
-          <p class="header-slogan">Educação, compromisso e transformação.</p>
-        </div>
-      </div>
+  <header class="site-header" id="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="#inicio" aria-label="EREMPAF — início">
+        <img src="/logo.png" alt="" width="72" height="72" decoding="async">
+        <span class="brand__text">
+          <strong>EREMPAF</strong>
+          <small>EREM Professor Antônio Farias</small>
+        </span>
+      </a>
+
+      <button
+        class="menu-toggle"
+        id="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="main-nav"
+        aria-label="Abrir menu"
+      >
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="main-nav" id="main-nav" aria-label="Navegação principal">
+        <a href="#inicio">Início</a>
+        <a href="#escola">A Escola</a>
+        <a href="#vida-escolar">Vida Escolar</a>
+        <a href="/cardapio/index.html">Cardápio</a>
+        <a href="/contato/contato.html">Contato</a>
+        <a class="nav-portal" href="#portal">Acessar minha turma <span aria-hidden="true">↗</span></a>
+      </nav>
     </div>
   </header>
 
-  <!-- NAV -->
-  <nav class="nav" aria-label="Navegação principal">
-    <div class="nav-inner">
-      <a href="#" class="nav-link active">Início</a>
-      <a href="cardapio/index.html" class="nav-link">Cardápio</a>
-      <a href="https://www.siepe.educacao.pe.gov.br/" target="_blank" class="nav-link">Notas</a>
-      <a href="sobre/sobre.html" class="nav-link">Sobre</a>
-      <a href="contato/contato.html" class="nav-link">Contato</a>
-    </div>
-  </nav>
-  <div class="nav-red-line"></div>
+  <main id="conteudo">
+    <section class="hero" id="inicio" aria-labelledby="hero-title">
+      <div class="hero__grid page-shell">
+        <div class="hero__copy">
+          <p class="eyebrow hero-step">Escola de Referência em Ensino Médio</p>
 
-  <!-- MAIN -->
-  <main class="main">
-    <div class="main-inner">
+          <h1 id="hero-title" class="hero__title">
+            <span class="title-line"><span>EREM</span></span>
+            <span class="title-line title-line--accent"><span>Professor</span></span>
+            <span class="title-line"><span>Antônio Farias</span></span>
+          </h1>
 
-      <!-- CARROSSEL -->
-      <section class="carrossel" aria-label="Destaques da escola">
-        <div class="carrossel-track" id="carrosselTrack">
-          <!-- Slides: coloque imagens dentro de .slide -->
-          <div class="slide slide-placeholder">
-            <div class="slide-content"><span class="slide-eyebrow">Portal EREMPAF</span><strong>Informação escolar em um só lugar</strong><p>Acompanhe avisos, atividades e conteúdos da sua turma.</p></div>
+          <p class="hero__description hero-step">
+            Uma escola pública de referência em Gravatá, conectando formação,
+            experiências e oportunidades ao cotidiano dos estudantes.
+          </p>
+
+          <div class="hero__actions hero-step">
+            <a class="button button--primary" href="#escola">
+              Conheça a EREMPAF <span aria-hidden="true">↘</span>
+            </a>
+            <a class="text-link" href="#portal">
+              Acessar minha turma <span aria-hidden="true">↗</span>
+            </a>
           </div>
-          <div class="slide slide-placeholder">
-            <div class="slide-content"><span class="slide-eyebrow">Organização</span><strong>Seu calendário sempre acessível</strong><p>Consulte compromissos e matérias em qualquer dispositivo.</p></div>
-          </div>
-          <div class="slide slide-placeholder">
-            <div class="slide-content"><span class="slide-eyebrow">Comunidade escolar</span><strong>Conexão que facilita a rotina</strong><p>Um portal feito para estudantes, responsáveis e educadores.</p></div>
-          </div>
-        </div>
-        <button class="carrossel-btn carrossel-prev" onclick="moverCarrossel(-1)" aria-label="Destaque anterior">&#8249;</button>
-        <button class="carrossel-btn carrossel-next" onclick="moverCarrossel(1)" aria-label="Próximo destaque">&#8250;</button>
-        <div class="carrossel-dots" id="carrosselDots"></div>
-      </section>
 
-      <!-- FORM -->
-      <section class="portal-card" aria-labelledby="portal-title">
-        <span class="portal-eyebrow">Área das turmas</span>
-        <h2 class="portal-title" id="portal-title">Acessar o Portal</h2>
-        <p class="portal-description">Selecione sua série e turma para abrir o calendário.</p>
-
-        <div class="select-group">
-          <div class="select-wrap">
-            <label for="serie">Série</label><select id="serie" onchange="atualizarTurmas()" aria-describedby="aviso-erro">
-              <option value="">Série</option>
-              <option value="1ano">1º Ano</option>
-              <option value="2ano">2º Ano</option>
-              <option value="3ano">3º Ano</option>
-            </select>
-            <span class="select-arrow">&#8964;</span>
+          <div class="hero__facts hero-step" aria-label="Informações principais">
+            <span>Ensino Médio</span>
+            <span>Gravatá · PE</span>
+            <span>Rede Estadual</span>
           </div>
         </div>
 
-        <div class="select-group">
-          <div class="select-wrap">
-            <label for="turma">Turma</label><select id="turma" aria-describedby="aviso-erro">
-              <option value="">Turma</option>
-            </select>
-            <span class="select-arrow">&#8964;</span>
+        <div class="hero__media" data-reveal="scale">
+          <figure class="photo-frame photo-frame--hero" data-photo-frame data-parallax="0.018">
+            <img
+              src="/assets/escola/hero.webp"
+              alt="EREM Professor Antônio Farias"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            >
+            <div class="photo-fallback" aria-hidden="true">
+              <span class="photo-fallback__index">01</span>
+              <div>
+                <strong>EREMPAF</strong>
+                <small>Adicione a foto em<br>assets/escola/hero.webp</small>
+              </div>
+            </div>
+          </figure>
+
+          <div class="hero__note">
+            <span>GRAVATÁ · PERNAMBUCO</span>
+            <strong>Educação, compromisso e transformação.</strong>
           </div>
         </div>
+      </div>
+    </section>
 
-        <button class="btn-acessar" onclick="acessar()">Acessar</button>
-        <p id="aviso-erro" class="aviso-erro" role="alert" aria-live="polite"></p>
+    <section class="section section--school" id="escola">
+      <div class="page-shell">
+        <div class="section-label" data-reveal="line">
+          <span>01 / A Escola</span>
+          <span>Presença, formação e comunidade.</span>
+        </div>
 
-        <div class="portal-footer-bar"></div>
-      </section>
+        <div class="story-grid">
+          <figure class="photo-frame story-photo" data-photo-frame data-reveal="left" data-parallax="0.014">
+            <img
+              src="/assets/escola/escola.webp"
+              alt="Espaço da EREM Professor Antônio Farias"
+              loading="lazy"
+              decoding="async"
+            >
+            <div class="photo-fallback" aria-hidden="true">
+              <span class="photo-fallback__index">02</span>
+              <div>
+                <strong>A escola</strong>
+                <small>Adicione a foto em<br>assets/escola/escola.webp</small>
+              </div>
+            </div>
+          </figure>
 
-    </div>
+          <div class="story-copy" data-reveal="right">
+            <p class="eyebrow">EREM Professor Antônio Farias</p>
+            <h2>Uma escola que faz parte de Gravatá.</h2>
+            <p class="lead">
+              Um espaço de formação no Ensino Médio que aproxima aprendizagem,
+              convivência e experiências que ajudam os estudantes a construir
+              seus próximos passos.
+            </p>
+            <p>
+              A EREMPAF reúne comunidade escolar, rotina acadêmica e oportunidades
+              em um ambiente pensado para acompanhar a vida dos estudantes dentro
+              e além da sala de aula.
+            </p>
+            <a class="text-link" href="/sobre/sobre.html">
+              Conheça mais sobre o portal <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--portal" id="portal">
+      <div class="page-shell">
+        <div class="section-label section-label--light" data-reveal="line">
+          <span>02 / Portal do estudante</span>
+          <span>Sua rotina escolar, sempre acessível.</span>
+        </div>
+
+        <div class="portal-layout">
+          <div class="portal-copy" data-reveal="left">
+            <p class="eyebrow eyebrow--light">Área das turmas</p>
+            <h2>Sua rotina escolar em um só lugar.</h2>
+            <p>
+              Acesse o calendário da sua turma para acompanhar matérias,
+              avisos, anotações, fotos e notificações.
+            </p>
+
+            <div class="portal-features" aria-label="Recursos do portal">
+              <span>Calendário</span>
+              <span>Matérias</span>
+              <span>Avisos</span>
+              <span>Anotações</span>
+              <span>Fotos</span>
+              <span>Notificações</span>
+            </div>
+          </div>
+
+          <div class="portal-panel" data-reveal="right">
+            <span class="portal-panel__number" aria-hidden="true">EREMPAF / PORTAL</span>
+            <h3>Acessar minha turma</h3>
+            <p>Selecione sua série e a turma para continuar.</p>
+
+            <div class="portal-form">
+              <div class="field">
+                <label for="serie">Série</label>
+                <div class="select-control">
+                  <select id="serie" aria-describedby="aviso-erro">
+                    <option value="">Selecione a série</option>
+                    <option value="1ano">1º Ano</option>
+                    <option value="2ano">2º Ano</option>
+                    <option value="3ano">3º Ano</option>
+                  </select>
+                  <span aria-hidden="true">⌄</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="turma">Turma</label>
+                <div class="select-control">
+                  <select id="turma" aria-describedby="aviso-erro">
+                    <option value="">Selecione a turma</option>
+                  </select>
+                  <span aria-hidden="true">⌄</span>
+                </div>
+              </div>
+
+              <button class="button button--light portal-submit" id="btn-acessar" type="button">
+                Acessar portal <span aria-hidden="true">↗</span>
+              </button>
+
+              <p id="aviso-erro" class="form-error" role="alert" aria-live="polite"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--experiences" id="vida-escolar">
+      <div class="page-shell">
+        <div class="section-label" data-reveal="line">
+          <span>03 / Experiências</span>
+          <span>A escola também acontece fora da rotina da sala.</span>
+        </div>
+
+        <div class="experience-heading" data-reveal="up">
+          <h2>Muito além<br>da sala de aula.</h2>
+          <p>
+            A vida escolar também se constrói em projetos, encontros,
+            descobertas e oportunidades que ampliam repertórios e experiências.
+          </p>
+        </div>
+
+        <div class="experience-grid">
+          <article data-reveal="up" data-delay="0">
+            <span>01</span>
+            <strong>Projetos</strong>
+            <p>Iniciativas que transformam ideias em experiências de aprendizagem.</p>
+          </article>
+          <article data-reveal="up" data-delay="60">
+            <span>02</span>
+            <strong>Ciência</strong>
+            <p>Curiosidade, investigação e conhecimento em movimento.</p>
+          </article>
+          <article data-reveal="up" data-delay="120">
+            <span>03</span>
+            <strong>Cultura</strong>
+            <p>Expressão, identidade e diferentes formas de criar e participar.</p>
+          </article>
+          <article data-reveal="up" data-delay="180">
+            <span>04</span>
+            <strong>Esporte</strong>
+            <p>Convivência, prática e movimento fazendo parte da vida escolar.</p>
+          </article>
+          <article data-reveal="up" data-delay="220">
+            <span>05</span>
+            <strong>Oportunidades</strong>
+            <p>Vivências que aproximam os estudantes de novos caminhos.</p>
+          </article>
+          <article data-reveal="up" data-delay="240">
+            <span>06</span>
+            <strong>Eventos</strong>
+            <p>Momentos que reúnem a comunidade e movimentam a escola.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="movement-section" id="movimento">
+      <div class="page-shell movement-intro">
+        <div class="section-label" data-reveal="line">
+          <span>04 / Escola em movimento</span>
+          <span>Registros de uma escola que acontece todos os dias.</span>
+        </div>
+
+        <div class="movement-heading" data-reveal="up">
+          <h2>Acontece<br>por aqui.</h2>
+          <p>
+            Um espaço preparado para reunir imagens de projetos, encontros,
+            esporte, conhecimento e cultura na EREMPAF.
+          </p>
+        </div>
+      </div>
+
+      <div class="photo-rail" id="photo-rail" aria-label="Galeria da vida escolar" tabindex="0">
+        <figure class="rail-card" data-photo-frame data-reveal="scale">
+          <div class="rail-card__media">
+            <img src="/assets/escola/projeto-01.webp" alt="Registro de projetos da EREMPAF" loading="lazy" decoding="async">
+            <div class="photo-fallback" aria-hidden="true">
+              <span class="photo-fallback__index">03</span>
+              <div><strong>Projetos</strong><small>projeto-01.webp</small></div>
+            </div>
+          </div>
+          <figcaption><span>Projetos</span><span aria-hidden="true">↗</span></figcaption>
+        </figure>
+
+        <figure class="rail-card" data-photo-frame data-reveal="scale" data-delay="60">
+          <div class="rail-card__media">
+            <img src="/assets/escola/projeto-02.webp" alt="Registro de encontros da EREMPAF" loading="lazy" decoding="async">
+            <div class="photo-fallback" aria-hidden="true">
+              <span class="photo-fallback__index">04</span>
+              <div><strong>Encontros</strong><small>projeto-02.webp</small></div>
+            </div>
+          </div>
+          <figcaption><span>Encontros</span><span aria-hidden="true">↗</span></figcaption>
+        </figure>
+
+        <figure class="rail-card" data-photo-frame data-reveal="scale" data-delay="120">
+          <div class="rail-card__media">
+            <img src="/assets/escola/projeto-03.webp" alt="Registro da vida escolar da EREMPAF" loading="lazy" decoding="async">
+            <div class="photo-fallback" aria-hidden="true">
+              <span class="photo-fallback__index">05</span>
+              <div><strong>Esporte</strong><small>projeto-03.webp</small></div>
+            </div>
+          </div>
+          <figcaption><span>Esporte</span><span aria-hidden="true">↗</span></figcaption>
+        </figure>
+
+        <figure class="rail-card" data-photo-frame data-reveal="scale" data-delay="180">
+          <div class="rail-card__media">
+            <img src="/assets/escola/escola.webp" alt="Registro de conhecimento e aprendizagem na EREMPAF" loading="lazy" decoding="async">
+            <div class="photo-fallback" aria-hidden="true">
+              <span class="photo-fallback__index">06</span>
+              <div><strong>Conhecimento</strong><small>escola.webp</small></div>
+            </div>
+          </div>
+          <figcaption><span>Conhecimento</span><span aria-hidden="true">↗</span></figcaption>
+        </figure>
+
+        <figure class="rail-card" data-photo-frame data-reveal="scale" data-delay="220">
+          <div class="rail-card__media">
+            <img src="/assets/escola/hero.webp" alt="Registro da cultura e convivência na EREMPAF" loading="lazy" decoding="async">
+            <div class="photo-fallback" aria-hidden="true">
+              <span class="photo-fallback__index">07</span>
+              <div><strong>Cultura</strong><small>hero.webp</small></div>
+            </div>
+          </div>
+          <figcaption><span>Cultura</span><span aria-hidden="true">↗</span></figcaption>
+        </figure>
+      </div>
+
+      <div class="rail-meta page-shell">
+        <div class="rail-progress" aria-hidden="true"><span></span></div>
+        <span>Arraste para explorar</span>
+      </div>
+
+      <div class="instagram-row page-shell" id="instagram-cta" hidden>
+        <div>
+          <span class="instagram-mark" aria-hidden="true">◎</span>
+          <span>Instagram da escola</span>
+        </div>
+        <a class="text-link" id="instagram-link" href="#" target="_blank" rel="noopener noreferrer">
+          Acompanhar a EREMPAF <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="section section--access" id="acessos">
+      <div class="page-shell">
+        <div class="section-label" data-reveal="line">
+          <span>05 / Acessos</span>
+          <span>O que você precisa, sem perder tempo.</span>
+        </div>
+
+        <div class="access-list">
+          <a href="/cardapio/index.html" data-reveal="up">
+            <span class="access-index">01</span>
+            <strong>Cardápio</strong>
+            <small>Refeições da semana</small>
+            <span class="access-arrow" aria-hidden="true">↗</span>
+          </a>
+
+          <a href="https://www.siepe.educacao.pe.gov.br/" target="_blank" rel="noopener" data-reveal="up" data-delay="60">
+            <span class="access-index">02</span>
+            <strong>Notas / SIEPE</strong>
+            <small>Acesso ao sistema oficial</small>
+            <span class="access-arrow" aria-hidden="true">↗</span>
+          </a>
+
+          <a href="#portal" data-reveal="up" data-delay="120">
+            <span class="access-index">03</span>
+            <strong>Portal das turmas</strong>
+            <small>Calendário e rotina escolar</small>
+            <span class="access-arrow" aria-hidden="true">↘</span>
+          </a>
+
+          <a href="/contato/contato.html" data-reveal="up" data-delay="180">
+            <span class="access-index">04</span>
+            <strong>Contato</strong>
+            <small>Canais e informações da escola</small>
+            <span class="access-arrow" aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--location" id="localizacao">
+      <div class="page-shell">
+        <div class="section-label section-label--warm" data-reveal="line">
+          <span>06 / Localização</span>
+          <span>EREMPAF · Gravatá · Pernambuco</span>
+        </div>
+
+        <div class="location-grid">
+          <div class="location-copy" data-reveal="left">
+            <h2>Nosso lugar<br>é em Gravatá.</h2>
+            <address>
+              Rua Quintino Bocaiúva - Norte<br>
+              Gravatá · PE<br>
+              CEP 55641-015
+            </address>
+
+            <a
+              class="text-link"
+              href="https://www.google.com/maps/search/?api=1&amp;query=Rua%20Quintino%20Bocai%C3%BAva%20Norte%20Gravat%C3%A1%20PE%2055641-015"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Abrir no Google Maps <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+
+          <a
+            class="map-placeholder"
+            href="https://www.google.com/maps/search/?api=1&amp;query=Rua%20Quintino%20Bocai%C3%BAva%20Norte%20Gravat%C3%A1%20PE%2055641-015"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-reveal="scale"
+            aria-label="Pesquisar a EREMPAF no Google Maps"
+          >
+            <span class="map-grid" aria-hidden="true"></span>
+            <span class="map-pin" aria-hidden="true"></span>
+            <div class="map-card">
+              <small>EREM PROFESSOR ANTÔNIO FARIAS</small>
+              <strong>Gravatá · Pernambuco</strong>
+              <span>Ver localização ↗</span>
+            </div>
+          </a>
+
+          <div class="location-directory" data-reveal="right">
+            <a href="/contato/contato.html">
+              <span>
+                <small>CONTATO</small>
+                Fale com a escola
+              </span>
+              <span aria-hidden="true">↗</span>
+            </a>
+            <a href="/sobre/sobre.html">
+              <span>
+                <small>INSTITUCIONAL</small>
+                Sobre o Portal
+              </span>
+              <span aria-hidden="true">↗</span>
+            </a>
+            <a href="#portal">
+              <span>
+                <small>ESTUDANTES</small>
+                Acessar minha turma
+              </span>
+              <span aria-hidden="true">↘</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta" data-reveal="scale">
+      <div class="page-shell final-cta__inner">
+        <p class="eyebrow eyebrow--light">Portal EREMPAF</p>
+        <h2>Informação escolar<br>mais perto de você.</h2>
+        <p>
+          Consulte sua turma, acompanhe a rotina escolar e encontre os
+          principais acessos da EREM Professor Antônio Farias.
+        </p>
+        <div class="final-cta__actions">
+          <a class="button button--light" href="#portal">Acessar minha turma <span aria-hidden="true">↗</span></a>
+          <a class="text-link text-link--light" href="/contato/contato.html">Fale com a escola <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-inner">
+  <footer class="school-footer">
+    <div class="page-shell">
+      <div class="footer-top">
+        <a class="footer-brand" href="#inicio" aria-label="EREMPAF — voltar ao início">
+          <img src="/logo.png" alt="" width="64" height="64" loading="lazy" decoding="async">
+          <span>
+            <strong>EREMPAF</strong>
+            <small>EREM Professor Antônio Farias</small>
+          </span>
+        </a>
 
-      <div class="footer-col">
-        <h3 class="footer-heading">Endereço</h3>
-        <p class="footer-line"><span class="footer-icon">&#9679;</span> Rua Quintino Bocaiúva - Norte<br>Gravatá – PE,
-          55641-015</p>
-        <p class="footer-line"><span class="footer-icon">&#9675;</span> Seg–Sex: 7h–17h</p>
+        <a class="footer-back" href="#inicio">Voltar ao início <span aria-hidden="true">↑</span></a>
       </div>
 
-      <div class="footer-col">
-        <h3 class="footer-heading">Links Rápidos</h3>
-        <ul class="footer-links">
-          <li><a href="#">&#8250; Início</a></li>
-          <li><a href="https://www.siepe.educacao.pe.gov.br/" target="_blank">&#8250; Notas</a></li>
-          <li><a href="/cardapio/index.html">&#8250; Cardápio</a></li>
-          <li><a href="/contato/contato.html">&#8250; Contato</a></li>
-        </ul>
-      </div>
+      <nav class="footer-nav" aria-label="Navegação do rodapé">
+        <a href="#escola">A Escola</a>
+        <a href="#portal">Portal</a>
+        <a href="#vida-escolar">Vida Escolar</a>
+        <a href="/cardapio/index.html">Cardápio</a>
+        <a href="/contato/contato.html">Contato</a>
+        <a href="https://www.siepe.educacao.pe.gov.br/" target="_blank" rel="noopener">SIEPE</a>
+      </nav>
 
-      <div class="footer-col footer-col-pe">
-        <h3 class="footer-heading">Secretaria de Educação</h3>
-        <div class="pe-brand">
-          <img src="assets/pe-logo.png" alt="Brasão de Pernambuco" class="pe-logo" width="256" height="256" loading="lazy" decoding="async" onerror="this.style.display='none'">
-          <div class="pe-text">
-            <span class="pe-gov">GOVERNO DO ESTADO</span>
-            <span class="pe-name">PERNAMBUCO</span>
-            <span class="pe-sub">Rede Estadual de Pernambuco</span>
-          </div>
-        </div>
+      <div class="footer-end">
+        <span>EREMPAF © 2026 · Gravatá · Pernambuco</span>
+        <span class="footer-credit">Desenvolvido por <a href="https://www.instagram.com/murilo_gabriell0/" target="_blank" rel="noopener">Murilo</a></span>
       </div>
-
-    </div>
-    <div class="footer-bottom">
-      <span class="footer-credito-destaque">Desenvolvido por © <a href="https://www.instagram.com/murilo_gabriell0/"
-          target="_blank" rel="noopener">Murilo</a> — Todos os direitos reservados</span>
-      <span class="footer-institucional">EREMPAF © 2026</span>
     </div>
   </footer>
 
-  <script type="module" src="script.js"></script>
-  <script>
-    // Carrossel
-    let slideAtual = 0;
-    const track = document.getElementById("carrosselTrack");
-    const slides = track.querySelectorAll(".slide");
-    const dotsContainer = document.getElementById("carrosselDots");
-
-    slides.forEach((_, i) => {
-      const dot = document.createElement("button");
-      dot.className = "carrossel-dot" + (i === 0 ? " ativo" : "");
-      dot.setAttribute("aria-label", `Ir para o destaque ${i + 1}`);
-      dot.onclick = () => irParaSlide(i);
-      dotsContainer.appendChild(dot);
-    });
-
-    function irParaSlide(n) {
-      slideAtual = (n + slides.length) % slides.length;
-      track.style.transform = `translateX(-${slideAtual * 100}%)`;
-      document.querySelectorAll(".carrossel-dot").forEach((d, i) =>
-        d.classList.toggle("ativo", i === slideAtual)
-      );
-    }
-
-    function moverCarrossel(dir) { irParaSlide(slideAtual + dir); }
-
-    // Pausa para leitura e respeita a preferência por menos movimento.
-    const carousel = document.querySelector('.carrossel');
-    let paused = false;
-    carousel.addEventListener('focusin', () => paused = true);
-    carousel.addEventListener('focusout', () => paused = false);
-    carousel.addEventListener('mouseenter', () => paused = true);
-    carousel.addEventListener('mouseleave', () => paused = false);
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => {
-      if (!paused && !document.hidden) moverCarrossel(1);
-    }, 5000);
-  </script>
+  <script type="module" src="/script.js"></script>
 </body>
-
 </html>
