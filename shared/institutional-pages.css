@@ -1,0 +1,546 @@
+/* ============================================================
+   EREMPAF — estrutura institucional compartilhada
+   Usada em Sobre, Contato e Cardápio.
+   ============================================================ */
+
+:root {
+  --inst-blue: #15366f;
+  --inst-blue-dark: #0b2148;
+  --inst-red: #9e2231;
+  --inst-nav: #111820;
+  --inst-line: #d5d8dc;
+  --inst-soft: #f3f4f6;
+  --inst-ink: #272727;
+  --inst-muted: #666d76;
+  --inst-title: 'Montserrat', Arial, sans-serif;
+  --inst-body: 'Open Sans', Arial, sans-serif;
+  --inst-shell: 1160px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.inst-shell {
+  width: min(calc(100% - 40px), var(--inst-shell));
+  margin-inline: auto;
+}
+
+.skip-link {
+  position: fixed;
+  left: 14px;
+  top: 10px;
+  z-index: 9999;
+  transform: translateY(-180%);
+  padding: 10px 14px;
+  background: #fff;
+  color: var(--inst-blue-dark);
+  border: 2px solid var(--inst-blue);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+.gov-bar {
+  min-height: 40px;
+  color: #3f444a;
+  background: #efefef;
+  border-bottom: 1px solid #d1d3d6;
+}
+
+.gov-bar__inner {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.gov-brand {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  font: 800 12px/1 var(--inst-title);
+  letter-spacing: .035em;
+}
+
+.gov-brand img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  margin-right: 9px;
+}
+
+.gov-brand small {
+  margin-left: 14px;
+  padding-left: 14px;
+  color: #777d84;
+  border-left: 1px solid #c8cbd0;
+  font: 600 10px/1 var(--inst-title);
+}
+
+.gov-links {
+  display: flex;
+  align-items: center;
+}
+
+.gov-links a {
+  padding: 5px 12px;
+  color: #565b62;
+  border-left: 1px solid #d0d2d5;
+  font-size: 10px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.gov-links a:hover {
+  color: var(--inst-blue);
+  text-decoration: underline;
+}
+
+.institutional-header {
+  color: white;
+  background:
+    linear-gradient(125deg, rgba(255,255,255,.03) 20%, transparent 20% 45%, rgba(255,255,255,.025) 45% 62%, transparent 62%),
+    linear-gradient(100deg, var(--inst-blue-dark), var(--inst-blue));
+  border-bottom: 4px solid var(--inst-red);
+}
+
+.institutional-header__inner {
+  min-height: 132px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 36px;
+  padding-block: 20px;
+}
+
+.school-brand {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: white;
+  text-decoration: none;
+}
+
+.school-brand img {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.school-brand span {
+  display: grid;
+  gap: 4px;
+}
+
+.school-brand small {
+  color: rgba(255,255,255,.72);
+  font: 700 9px/1.2 var(--inst-title);
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.school-brand strong {
+  font: 800 clamp(22px, 2.6vw, 34px)/1.07 var(--inst-title);
+  letter-spacing: -.03em;
+}
+
+.school-brand em {
+  color: #f1d55c;
+  font: 600 11px/1.2 var(--inst-title);
+  font-style: normal;
+}
+
+.header-side {
+  min-width: 220px;
+  padding-left: 24px;
+  border-left: 1px solid rgba(255,255,255,.25);
+}
+
+.header-side span {
+  display: block;
+  margin-bottom: 7px;
+  color: rgba(255,255,255,.6);
+  font: 700 8px/1 var(--inst-title);
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.header-side a {
+  color: white;
+  font: 700 12px/1.35 var(--inst-title);
+  text-decoration: none;
+}
+
+.header-side a:hover {
+  text-decoration: underline;
+}
+
+.main-nav-wrap {
+  background: var(--inst-nav);
+  border-bottom: 1px solid #303740;
+}
+
+.nav-shell {
+  min-height: 54px;
+  display: flex;
+  align-items: center;
+}
+
+.main-nav {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+}
+
+.main-nav a {
+  display: flex;
+  align-items: center;
+  min-height: 54px;
+  padding: 0 20px;
+  color: #f2f3f5;
+  border-right: 1px solid #343b44;
+  font: 700 12px/1 var(--inst-title);
+  text-decoration: none;
+}
+
+.main-nav a:first-child {
+  border-left: 1px solid #343b44;
+}
+
+.main-nav a:hover,
+.main-nav a.is-active {
+  background: #252d36;
+}
+
+.main-nav a.is-active {
+  box-shadow: inset 0 -3px var(--inst-red);
+}
+
+.main-nav .portal-nav-link {
+  margin-left: auto;
+  color: white;
+  background: #741724;
+}
+
+.main-nav .portal-nav-link:hover {
+  background: var(--inst-red);
+}
+
+.menu-toggle {
+  display: none;
+}
+
+.page-title-band {
+  background: #f4f5f6;
+  border-bottom: 1px solid #d6d9dc;
+}
+
+.page-title-band__inner {
+  padding-block: 28px;
+}
+
+.page-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 11px;
+  color: #767b81;
+  font-size: 10px;
+}
+
+.page-breadcrumb a {
+  color: var(--inst-blue);
+  text-decoration: none;
+}
+
+.page-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.page-title-band h1 {
+  color: #373b40;
+  font: 700 clamp(27px, 3.2vw, 38px)/1.08 var(--inst-title);
+  letter-spacing: -.025em;
+}
+
+.page-title-band p {
+  max-width: 720px;
+  margin-top: 8px;
+  color: #6b7076;
+  font-size: 13px;
+}
+
+.page-title-band__rule {
+  width: 64px;
+  height: 4px;
+  margin-top: 18px;
+  background: var(--inst-red);
+}
+
+.site-footer {
+  color: #dce5f4;
+  background: #0d244d;
+  margin-top: auto;
+}
+
+.footer-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 50px;
+  align-items: center;
+  padding-block: 34px;
+}
+
+.footer-school {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.footer-school img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.footer-school div {
+  display: grid;
+  gap: 2px;
+}
+
+.footer-school strong {
+  color: white;
+  font: 800 18px/1 var(--inst-title);
+}
+
+.footer-school span {
+  font: 600 10px/1.3 var(--inst-title);
+}
+
+.footer-school small {
+  color: #99a9c4;
+  font-size: 9px;
+}
+
+.footer-main nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+}
+
+.footer-main nav a {
+  color: #c6d2e5;
+  font: 700 10px/1 var(--inst-title);
+  text-decoration: none;
+}
+
+.footer-main nav a:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.footer-gov {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.footer-gov img {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}
+
+.footer-gov span {
+  display: grid;
+}
+
+.footer-gov small {
+  color: #9fb0ca;
+  font: 700 7px/1 var(--inst-title);
+  letter-spacing: .08em;
+}
+
+.footer-gov strong {
+  color: white;
+  font: 800 16px/1.1 var(--inst-title);
+}
+
+.footer-gov em {
+  color: #aab8cf;
+  font-size: 8px;
+  font-style: normal;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding-block: 14px;
+  color: #7f91ae;
+  border-top: 1px solid #263d65;
+  font-size: 9px;
+}
+
+.footer-bottom a {
+  color: #c8d3e5;
+  text-decoration: none;
+}
+
+.footer-bottom a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .gov-links a:first-child {
+    display: none;
+  }
+
+  .institutional-header__inner {
+    min-height: 112px;
+  }
+
+  .school-brand img {
+    width: 70px;
+    height: 70px;
+  }
+
+  .header-side {
+    display: none;
+  }
+
+  .menu-toggle {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .menu-toggle__icon {
+    width: 24px;
+    display: grid;
+    gap: 5px;
+  }
+
+  .menu-toggle__icon span {
+    display: block;
+    height: 2px;
+    background: white;
+  }
+
+  .menu-toggle strong {
+    font: 700 11px/1 var(--inst-title);
+    text-transform: uppercase;
+  }
+
+  .nav-shell {
+    display: block;
+  }
+
+  .main-nav {
+    display: none;
+    border-top: 1px solid #353c44;
+  }
+
+  .main-nav.is-open {
+    display: block;
+  }
+
+  .main-nav a,
+  .main-nav a:first-child {
+    min-height: 48px;
+    padding: 0 14px;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 1px solid #353c44;
+  }
+
+  .main-nav .portal-nav-link {
+    margin-left: 0;
+  }
+
+  .footer-main {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer-gov {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 680px) {
+  .inst-shell {
+    width: min(calc(100% - 28px), var(--inst-shell));
+  }
+
+  .gov-brand small {
+    display: none;
+  }
+
+  .gov-links a {
+    padding-inline: 8px;
+  }
+
+  .institutional-header__inner {
+    min-height: 104px;
+    padding-block: 13px;
+  }
+
+  .school-brand {
+    gap: 13px;
+  }
+
+  .school-brand img {
+    width: 62px;
+    height: 62px;
+  }
+
+  .school-brand small {
+    font-size: 7px;
+  }
+
+  .school-brand strong {
+    font-size: 19px;
+  }
+
+  .school-brand em {
+    font-size: 8px;
+  }
+
+  .page-title-band__inner {
+    padding-block: 23px;
+  }
+
+  .page-title-band h1 {
+    font-size: 28px;
+  }
+
+  .footer-main {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  .footer-gov {
+    grid-column: auto;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
