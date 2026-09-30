@@ -448,3 +448,26 @@ body {
 /* Refinamento responsivo do portal institucional */
 body{overflow-x:hidden;line-height:1.55}.header{background:linear-gradient(110deg,#122d6e,#1a3c8f)}.nav-inner{overflow-x:auto;scrollbar-width:none}.nav-link{white-space:nowrap}.card,.membro-card{border-radius:14px;box-shadow:0 10px 30px rgba(18,45,110,.08);transition:transform .2s,box-shadow .2s}.card:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(18,45,110,.12)}:focus-visible{outline:3px solid rgba(240,192,48,.8);outline-offset:3px}
 @media(max-width:600px){.header-inner,.page-hero-inner,.conteudo-inner{padding-left:16px;padding-right:16px}.header-title{font-size:13px}.header-title br{display:none}.header-logo{width:56px;height:56px}.nav-inner{padding:0 6px}.nav-link{padding:12px 14px}.cards-row,.features-grid,.equipe-grid{grid-template-columns:1fr}.card{padding:20px}.card:hover{transform:none}.footer-inner{grid-template-columns:1fr}}
+
+/* ============================================================
+   Refinamento institucional — Sobre
+   ============================================================ */
+body{background:#fff;color:#2b2f34}
+.conteudo{padding:36px 0 58px;background:#fff}
+.conteudo-inner{max-width:1160px;gap:22px}
+.cards-row{gap:22px}
+.card{border:1px solid #d9dde2;border-top:4px solid #15366f;border-radius:0;box-shadow:none;background:#fff;padding:24px;transition:none}
+.card:hover{box-shadow:none;transform:none}
+.card-icon-wrap{width:38px;height:38px;border-radius:0;background:#e9eef6;color:#15366f}
+.card-title{color:#30353a;font-size:17px}
+.card-body p,.card-full>p,.contato-intro{color:#666d76;line-height:1.7}
+.features-grid{gap:0;border-top:1px solid #dfe2e6;border-left:1px solid #dfe2e6}
+.feature-item{min-height:96px;padding:16px;border:0;border-right:1px solid #dfe2e6;border-bottom:1px solid #dfe2e6;border-radius:0;background:#f7f8f9}
+.feature-dot{width:7px;height:7px;margin-top:6px;background:#9e2231}
+.badge{border-radius:0;background:#15366f}
+.membro-card{border:1px solid #d9dde2;border-left:4px solid #15366f;border-radius:0;background:#f8f9fa;box-shadow:none}
+.membro-destaque{border:1px solid #d9dde2;border-left:4px solid #15366f;border-radius:0;background:#fff}
+.membro-destaque::after{display:none}
+.membro-social-link,.membro-contato-item,.membro-turma-badge{border-radius:0;box-shadow:none}
+.membro-social-link:hover{transform:none;box-shadow:none}
+@media(max-width:768px){.conteudo{padding-top:26px}.card{padding:20px}.membro-card{align-items:flex-start;text-align:left}.membro-titulo-row{justify-content:flex-start}.membro-social-link{margin-inline:0}}
