@@ -2196,3 +2196,217 @@ input:focus-visible, textarea:focus-visible { outline: 2px solid var(--red-brigh
     min-height: 44px;
   }
 }
+
+
+/* ─── IMPORTANTES: AVISOS / LINKS ─── */
+.importantes-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 2px 0 10px;
+  padding: 4px;
+  border: 1px solid var(--border-lg);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.importantes-tab {
+  min-height: 38px;
+  padding: 8px 18px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-main);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .16s ease, color .16s ease, transform .16s ease;
+}
+
+.importantes-tab:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,.05);
+}
+
+.importantes-tab.active {
+  color: #fff;
+  background: var(--red-main);
+  box-shadow: 0 4px 12px var(--red-glow);
+}
+
+.importantes-tab:active {
+  transform: translateY(1px);
+}
+
+.importantes-painel[hidden] {
+  display: none !important;
+}
+
+.links-importantes-lista {
+  display: grid;
+  gap: 8px;
+}
+
+.links-importantes-vazio {
+  margin: 0;
+  padding: 12px 2px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.link-importante-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 56px;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red-main);
+  border-radius: 9px;
+  background: rgba(0,0,0,.11);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+
+.link-importante-card:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-lg);
+  transform: translateY(-1px);
+}
+
+.link-importante-textos {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.link-importante-textos strong {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link-importante-textos small {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.link-importante-seta {
+  flex: 0 0 auto;
+  color: var(--red-bright);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.link-importante-editor {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  gap: 8px;
+  align-items: stretch;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: rgba(0,0,0,.10);
+}
+
+.link-importante-campos {
+  display: grid;
+  grid-template-columns: minmax(140px,.8fr) minmax(180px,1.2fr);
+  gap: 8px;
+}
+
+.link-importante-campos input {
+  width: 100%;
+  min-width: 0;
+  height: 40px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  outline: none;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 12px;
+}
+
+.link-importante-campos input::placeholder {
+  color: var(--text-muted);
+}
+
+.link-importante-campos input:focus {
+  border-color: var(--red-main);
+  box-shadow: 0 0 0 2px var(--red-glow);
+}
+
+.link-importante-remover {
+  width: 40px;
+  min-height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.link-importante-remover:hover {
+  border-color: var(--red-main);
+  color: #fff;
+  background: var(--red-main);
+}
+
+.btn-adicionar-link-importante {
+  margin-top: 10px;
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1px dashed var(--border-lg);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--red-bright);
+  cursor: pointer;
+  font-family: var(--font-main);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.btn-adicionar-link-importante:hover {
+  background: var(--red-glow);
+  border-style: solid;
+}
+
+@media (max-width: 600px) {
+  .importantes-tabs {
+    width: 100%;
+  }
+
+  .importantes-tab {
+    flex: 1;
+    padding-inline: 10px;
+  }
+
+  .link-importante-campos {
+    grid-template-columns: 1fr;
+  }
+
+  .link-importante-card {
+    min-height: 60px;
+  }
+
+  .link-importante-textos strong,
+  .link-importante-textos small {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
