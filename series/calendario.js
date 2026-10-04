@@ -1263,7 +1263,24 @@ async function salvarCalendario() {
         senhaEdicaoTurma = '';
         throw new Error('Senha de edição incorreta ou alterada. Clique em Editar e digite a senha novamente.');
       }
-      throw e;
+
+      // O backend publicado pode demorar um pouco para receber a versão que entende
+      // linksImportantes. Enquanto isso, não deixa edições antigas do calendário pararem
+      // de salvar só porque o frontend já foi atualizado.
+      if (e.status === 400) {
+        const linksAnteriores = sanitizarLinksImportantes(loaded.data.linksImportantes);
+        const linksMudaram = stableJson(linksAnteriores) !== stableJson(payload.linksImportantes);
+
+        if (linksMudaram) {
+          throw new Error('A área de Links já está pronta, mas o servidor ainda não recebeu a atualização necessária para salvar links. Tente novamente após o deploy do backend.');
+        }
+
+        const payloadCompatibilidade = { ...payload };
+        delete payloadCompatibilidade.linksImportantes;
+        result = await chamarBackendCalendario(payloadCompatibilidade);
+      } else {
+        throw e;
+      }
     }
 
     const revision = Number.isInteger(result.revision) ? result.revision : baseRevision + 1;
