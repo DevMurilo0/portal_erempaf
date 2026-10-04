@@ -1955,3 +1955,244 @@ input:focus-visible, textarea:focus-visible { outline: 2px solid var(--red-brigh
 }
 #cancelar-senha-edicao:hover, #btn-desc-cancelar:hover { background: rgba(255,255,255,.06) !important; }
 .topo-acoes button[hidden] { display: none; }
+
+
+/* ══════════════════════════════════════════════
+   HISTÓRICO DE ALTERAÇÕES
+   Fica abaixo da agenda e herda a cor da turma.
+══════════════════════════════════════════════ */
+.historico {
+  width: calc(100% - 40px);
+  max-width: 1180px;
+  margin: 28px auto 44px;
+  padding: 22px 24px 18px;
+  background: linear-gradient(145deg, rgba(255,255,255,.035), transparent 65%), var(--bg-dark);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--red-bright);
+  border-radius: 12px;
+  box-shadow: 0 14px 34px rgba(0,0,0,.14);
+}
+
+.historico[hidden] {
+  display: none !important;
+}
+
+.historico-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.historico-titulo-wrap {
+  min-width: 0;
+}
+
+.historico-kicker {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--red-bright);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+
+.historico h2 {
+  margin: 0;
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  font-size: 19px;
+  line-height: 1.25;
+  letter-spacing: -.02em;
+}
+
+.historico-header p {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.historico-lista {
+  position: relative;
+  padding-top: 8px;
+}
+
+.historico-grupo {
+  margin: 20px 0 8px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.historico-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 58px 26px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  min-height: 56px;
+  padding: 9px 0 12px;
+}
+
+.historico-item::before {
+  content: "";
+  position: absolute;
+  left: 70px;
+  top: 31px;
+  bottom: -8px;
+  width: 1px;
+  background: var(--border);
+}
+
+.historico-item:last-child::before {
+  display: none;
+}
+
+.historico-hora {
+  padding-top: 4px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.historico-marker {
+  position: relative;
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  color: var(--text-primary);
+  background: var(--bg-card2);
+  border: 1px solid var(--border-lg);
+  border-radius: 50%;
+  font-family: var(--font-main);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.historico-marker--aviso,
+.historico-marker--link {
+  color: #fff;
+  background: var(--red-main);
+  border-color: var(--red-bright);
+}
+
+.historico-item-conteudo {
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.historico-item-conteudo strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.historico-item-conteudo p {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.historico-vazio {
+  margin: 18px 0 10px;
+  padding: 18px;
+  color: var(--text-muted);
+  background: rgba(255,255,255,.025);
+  border: 1px dashed var(--border);
+  font-size: 12px;
+  text-align: center;
+}
+
+.historico-rodape {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  margin-top: 8px;
+}
+
+.historico-status {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.historico-ver-mais {
+  min-height: 38px;
+  padding: 9px 18px;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid var(--border-lg);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-main);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.historico-ver-mais:hover:not(:disabled) {
+  color: #fff;
+  background: var(--red-main);
+  border-color: var(--red-bright);
+}
+
+.historico-ver-mais:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+@media (max-width: 600px) {
+  .historico {
+    width: calc(100% - 20px);
+    margin: 18px auto 30px;
+    padding: 18px 14px 14px;
+    border-radius: 10px;
+  }
+
+  .historico h2 {
+    font-size: 17px;
+  }
+
+  .historico-header p {
+    font-size: 11px;
+  }
+
+  .historico-item {
+    grid-template-columns: 46px 24px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .historico-item::before {
+    left: 58px;
+  }
+
+  .historico-hora {
+    font-size: 9px;
+  }
+
+  .historico-item-conteudo strong {
+    font-size: 12px;
+  }
+
+  .historico-item-conteudo p {
+    font-size: 10px;
+  }
+
+  .historico-ver-mais {
+    width: 100%;
+    min-height: 44px;
+  }
+}
