@@ -16,6 +16,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 import { initNotificacoes } from "./notificacoes.js";
+import { criarHistoricoAlteracoes } from "./historico.js";
 
 window.mostrarToast = mostrarToast;
 
@@ -106,6 +107,15 @@ const tituloDetalhes = document.getElementById("titulo-detalhes");
 const diaSemanaEl = document.getElementById("painel-dia-semana");
 const materiasGrid = document.getElementById("materias-grid");
 
+const historicoAlteracoes = criarHistoricoAlteracoes({
+  carregarPagina: ({ cursorId, limit }) => chamarBackendCalendario({
+    operation: "history",
+    turma: SALA_ID,
+    limit,
+    ...(cursorId ? { cursorId } : {})
+  })
+});
+
 /* ──────────────────────────────────────────────
    AUTENTICAÇÃO — LOGIN DA TURMA
 ────────────────────────────────────────────── */
@@ -142,7 +152,10 @@ observeSession(({user, claims}) => {
 
   if (user && permitido) {
     fecharModalLogin();
-    if (changed || !loaded) carregarCalendario();
+    if (changed || !loaded) {
+      void carregarCalendario();
+      void historicoAlteracoes.carregar(true);
+    }
     return;
   }
 
@@ -151,6 +164,7 @@ observeSession(({user, claims}) => {
   estadoDetalhes = {};
   estadoFotos = {};
   campoAvisos.value = '';
+  historicoAlteracoes.limpar();
   renderizarCalendario();
   abrirModalLogin(user ? 'Entre com o email e a senha desta turma.' : '');
 });
@@ -1000,6 +1014,10 @@ async function salvarCalendario() {
       fotos: structuredClone(payload.fotos),
       revision
     };
+
+    // O backend grava o histórico no mesmo commit do calendário.
+    // Recarrega a timeline sem atrasar o restante do salvamento.
+    void historicoAlteracoes.carregar(true);
 
     const events = detectarNovosEventos();
     window._snapshotMaterias = structuredClone(estadoMaterias);
