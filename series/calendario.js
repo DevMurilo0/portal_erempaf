@@ -40,6 +40,7 @@ let diaDetalheAtual = null;
 let estadoMaterias = {};
 let estadoDetalhes = {};
 let estadoFotos = {}; // { "2026-06-10": ["base64...", "base64..."] }
+let estadoLinksImportantes = [];
 let tabAtiva = "anotacoes";
 let dataAtual = new Date();
 let salvamentoEmAndamento = false;
@@ -99,7 +100,261 @@ const diasContainer = document.getElementById("dias");
 const mesAnoSpan = document.getElementById("mes-ano");
 const btnEditar = document.getElementById("btn-editar");
 const btnSalvar = document.getElementById("btn-salvar");
+
 const campoAvisos = document.getElementById("campo-avisos");
+
+let abaImportantesAtiva = "avisos";
+
+function normalizarUrlImportante(value) {
+  let raw = String(value || "").trim();
+  if (!raw) return "";
+  if (/^www\./i.test(raw)) raw = "https://" + raw;
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(raw)) raw = "https://" + raw;
+
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "http:" && url.protocol !== "https:") return "";
+    return url.href;
+  } catch {
+    return "";
+  }
+}
+
+function sanitizarLinksImportantes(value) {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 30).map((item) => {
+    const titulo = String(item?.titulo || "").trim().slice(0, 120);
+    const url = normalizarUrlImportante(item?.url);
+    return titulo && url ? { titulo, url } : null;
+  }).filter(Boolean);
+}
+
+function prepararLinksImportantesParaSalvar() {
+  if (estadoLinksImportantes.length > 30) {
+    throw new Error("Use no máximo 30 links importantes.");
+  }
+
+  const links = [];
+  for (const item of estadoLinksImportantes) {
+    const titulo = String(item?.titulo || "").trim();
+    const original = String(item?.url || "").trim();
+
+    // Uma linha totalmente vazia pode surgir quando o editor toca em "Adicionar link"
+    // e depois muda de ideia. Não precisa impedir o salvamento por causa disso.
+    if (!titulo && !original) continue;
+
+    if (!titulo) throw new Error("Todo link importante precisa de um título.");
+    if (titulo.length > 120) throw new Error("O título de um link pode ter no máximo 120 caracteres.");
+    if (!original) throw new Error(`Adicione a URL do link “${titulo}”.`);
+
+    const url = normalizarUrlImportante(original);
+    if (!url) throw new Error(`A URL do link “${titulo}” não é válida.`);
+
+    links.push({ titulo, url });
+  }
+
+  return links;
+}
+
+function inicializarImportantes() {
+  const section = campoAvisos?.closest(".avisos");
+  if (!section) return null;
+
+  const heading = section.querySelector(".avisos-header h2");
+  if (heading) {
+    const icon = heading.querySelector("svg")?.cloneNode(true);
+    heading.replaceChildren();
+    if (icon) heading.appendChild(icon);
+    heading.appendChild(document.createTextNode("Importantes"));
+  }
+
+  const tabs = document.createElement("div");
+  tabs.className = "importantes-tabs";
+  tabs.setAttribute("role", "tablist");
+  tabs.setAttribute("aria-label", "Conteúdos importantes");
+
+  const btnAvisos = document.createElement("button");
+  btnAvisos.type = "button";
+  btnAvisos.id = "importantes-tab-avisos";
+  btnAvisos.className = "importantes-tab active";
+  btnAvisos.dataset.importantesTab = "avisos";
+  btnAvisos.setAttribute("role", "tab");
+  btnAvisos.setAttribute("aria-selected", "true");
+  btnAvisos.setAttribute("aria-controls", "importantes-painel-avisos");
+  btnAvisos.textContent = "Avisos";
+
+  const btnLinks = document.createElement("button");
+  btnLinks.type = "button";
+  btnLinks.id = "importantes-tab-links";
+  btnLinks.className = "importantes-tab";
+  btnLinks.dataset.importantesTab = "links";
+  btnLinks.setAttribute("role", "tab");
+  btnLinks.setAttribute("aria-selected", "false");
+  btnLinks.setAttribute("aria-controls", "importantes-painel-links");
+  btnLinks.textContent = "Links";
+
+  tabs.append(btnAvisos, btnLinks);
+
+  const painelAvisos = document.createElement("div");
+  painelAvisos.id = "importantes-painel-avisos";
+  painelAvisos.className = "importantes-painel";
+  painelAvisos.setAttribute("role", "tabpanel");
+  painelAvisos.setAttribute("aria-labelledby", btnAvisos.id);
+
+  campoAvisos.before(tabs);
+  campoAvisos.before(painelAvisos);
+  painelAvisos.appendChild(campoAvisos);
+
+  const painelLinks = document.createElement("div");
+  painelLinks.id = "importantes-painel-links";
+  painelLinks.className = "importantes-painel";
+  painelLinks.setAttribute("role", "tabpanel");
+  painelLinks.setAttribute("aria-labelledby", btnLinks.id);
+  painelLinks.hidden = true;
+
+  const lista = document.createElement("div");
+  lista.id = "links-importantes-lista";
+  lista.className = "links-importantes-lista";
+
+  const adicionar = document.createElement("button");
+  adicionar.type = "button";
+  adicionar.id = "btn-adicionar-link-importante";
+  adicionar.className = "btn-adicionar-link-importante";
+  adicionar.textContent = "+ Adicionar link";
+  adicionar.hidden = true;
+  adicionar.addEventListener("click", () => {
+    if (!modoEdicao) return;
+    if (estadoLinksImportantes.length >= 30) {
+      mostrarToast("Limite de 30 links importantes atingido.", "warning");
+      return;
+    }
+    estadoLinksImportantes.push({ titulo: "", url: "" });
+    renderizarLinksImportantes();
+    const inputs = lista.querySelectorAll("input");
+    inputs[inputs.length - 2]?.focus();
+  });
+
+  painelLinks.append(lista, adicionar);
+  section.appendChild(painelLinks);
+
+  const ativar = (tab) => {
+    abaImportantesAtiva = tab === "links" ? "links" : "avisos";
+    const linksAtivo = abaImportantesAtiva === "links";
+
+    btnAvisos.classList.toggle("active", !linksAtivo);
+    btnLinks.classList.toggle("active", linksAtivo);
+    btnAvisos.setAttribute("aria-selected", String(!linksAtivo));
+    btnLinks.setAttribute("aria-selected", String(linksAtivo));
+    painelAvisos.hidden = linksAtivo;
+    painelLinks.hidden = !linksAtivo;
+  };
+
+  btnAvisos.addEventListener("click", () => ativar("avisos"));
+  btnLinks.addEventListener("click", () => ativar("links"));
+
+  return { section, tabs, btnAvisos, btnLinks, painelAvisos, painelLinks, lista, adicionar, ativar };
+}
+
+const importantesUI = inicializarImportantes();
+
+function renderizarLinksImportantes() {
+  if (!importantesUI) return;
+
+  const { lista, adicionar } = importantesUI;
+  lista.replaceChildren();
+  adicionar.hidden = !modoEdicao;
+
+  if (modoEdicao) {
+    if (!estadoLinksImportantes.length) {
+      const vazio = document.createElement("p");
+      vazio.className = "links-importantes-vazio";
+      vazio.textContent = "Nenhum link por enquanto. Adicione links úteis para a turma.";
+      lista.appendChild(vazio);
+    }
+
+    estadoLinksImportantes.forEach((item, index) => {
+      const row = document.createElement("div");
+      row.className = "link-importante-editor";
+
+      const campos = document.createElement("div");
+      campos.className = "link-importante-campos";
+
+      const titulo = document.createElement("input");
+      titulo.type = "text";
+      titulo.maxLength = 120;
+      titulo.placeholder = "Título do link";
+      titulo.value = item.titulo || "";
+      titulo.setAttribute("aria-label", `Título do link ${index + 1}`);
+      titulo.addEventListener("input", () => {
+        estadoLinksImportantes[index].titulo = titulo.value;
+      });
+
+      const url = document.createElement("input");
+      url.type = "url";
+      url.placeholder = "https://...";
+      url.value = item.url || "";
+      url.setAttribute("aria-label", `URL do link ${index + 1}`);
+      url.addEventListener("input", () => {
+        estadoLinksImportantes[index].url = url.value;
+      });
+
+      const remover = document.createElement("button");
+      remover.type = "button";
+      remover.className = "link-importante-remover";
+      remover.setAttribute("aria-label", `Remover link ${index + 1}`);
+      remover.title = "Remover link";
+      remover.textContent = "×";
+      remover.addEventListener("click", () => {
+        estadoLinksImportantes.splice(index, 1);
+        renderizarLinksImportantes();
+      });
+
+      campos.append(titulo, url);
+      row.append(campos, remover);
+      lista.appendChild(row);
+    });
+    return;
+  }
+
+  if (!estadoLinksImportantes.length) {
+    const vazio = document.createElement("p");
+    vazio.className = "links-importantes-vazio";
+    vazio.textContent = "Nenhum link importante por enquanto.";
+    lista.appendChild(vazio);
+    return;
+  }
+
+  estadoLinksImportantes.forEach((item) => {
+    const url = normalizarUrlImportante(item.url);
+    if (!url) return;
+
+    const link = document.createElement("a");
+    link.className = "link-importante-card";
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
+    const textos = document.createElement("span");
+    textos.className = "link-importante-textos";
+
+    const titulo = document.createElement("strong");
+    titulo.textContent = item.titulo;
+
+    const dominio = document.createElement("small");
+    try { dominio.textContent = new URL(url).hostname.replace(/^www\./, ""); }
+    catch { dominio.textContent = url; }
+
+    const seta = document.createElement("span");
+    seta.className = "link-importante-seta";
+    seta.setAttribute("aria-hidden", "true");
+    seta.textContent = "↗";
+
+    textos.append(titulo, dominio);
+    link.append(textos, seta);
+    lista.appendChild(link);
+  });
+}
+
 
 const painelDetalhes = document.getElementById("painel-detalhes");
 const campoDetalhes = document.getElementById("campo-detalhes");
@@ -163,7 +418,9 @@ observeSession(({user, claims}) => {
   estadoMaterias = {};
   estadoDetalhes = {};
   estadoFotos = {};
+  estadoLinksImportantes = [];
   campoAvisos.value = '';
+  renderizarLinksImportantes();
   historicoAlteracoes.limpar();
   renderizarCalendario();
   abrirModalLogin(user ? 'Entre com o email e a senha desta turma.' : '');
@@ -324,6 +581,8 @@ function atualizarModoEdicao() {
 
   const btnPainelSalvar = document.getElementById("btn-painel-salvar");
   if (btnPainelSalvar) btnPainelSalvar.hidden = !modoEdicao;
+
+  renderizarLinksImportantes();
 
   // Atualiza aba fotos para mostrar/ocultar botão de upload
   if (diaDetalheAtual) renderizarFotos(diaDetalheAtual);
@@ -982,6 +1241,7 @@ async function salvarCalendario() {
   try {
     const month = mesAnoKey();
     const baseRevision = Number.isInteger(loaded.data.revision) ? loaded.data.revision : 0;
+    const linksImportantes = prepararLinksImportantesParaSalvar();
     const payload = {
       operation: 'save-month',
       turma: SALA_ID,
@@ -991,7 +1251,8 @@ async function salvarCalendario() {
       avisos: campoAvisos.value.trim(),
       detalhes: structuredClone(estadoDetalhes),
       materias: structuredClone(estadoMaterias),
-      fotos: structuredClone(estadoFotos)
+      fotos: structuredClone(estadoFotos),
+      linksImportantes
     };
 
     let result;
@@ -1012,8 +1273,12 @@ async function salvarCalendario() {
       detalhes: structuredClone(payload.detalhes),
       materias: structuredClone(payload.materias),
       fotos: structuredClone(payload.fotos),
+      linksImportantes: structuredClone(payload.linksImportantes),
       revision
     };
+
+    estadoLinksImportantes = structuredClone(payload.linksImportantes);
+    renderizarLinksImportantes();
 
     // O backend grava o histórico no mesmo commit do calendário.
     // Recarrega a timeline sem atrasar o restante do salvamento.
@@ -1043,6 +1308,8 @@ async function carregarCalendario() {
     const data = snap.exists() ? snap.data() : {};
     loaded = { month, data };
     campoAvisos.value = data.avisos || '';
+    estadoLinksImportantes = sanitizarLinksImportantes(data.linksImportantes);
+    renderizarLinksImportantes();
     estadoDetalhes = structuredClone(data.detalhes || {});
     // Notas do formato antigo continuam visíveis e não são apagadas ao salvar.
     for (const [key, value] of Object.entries(data)) if (/^\d{4}-\d{2}-\d{2}$/.test(key) && typeof value === 'string' && !estadoDetalhes[key]) estadoDetalhes[key] = value;
@@ -1066,7 +1333,8 @@ async function mudarMes(delta) {
   modoEdicao = false; senhaEdicaoTurma = ''; fecharPainel();
   descartarAlteracoesFotosLocais();
   dataAtual = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + delta, 1);
-  estadoMaterias = {}; estadoDetalhes = {}; estadoFotos = {}; campoAvisos.value = '';
+  estadoMaterias = {}; estadoDetalhes = {}; estadoFotos = {}; estadoLinksImportantes = []; campoAvisos.value = '';
+  renderizarLinksImportantes();
   atualizarModoEdicao(); renderizarCalendario();
   await carregarCalendario();
 }
