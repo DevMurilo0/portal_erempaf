@@ -208,17 +208,16 @@ export function criarHistoricoAlteracoes({ carregarPagina }) {
       ui.btnMais.hidden = !temMais;
       ui.status.textContent = "";
     } catch (error) {
-      // Enquanto o backend antigo ainda estiver publicado, não deixa um painel quebrado
-      // aparecer na página. Assim que a função nova entrar no ar, o próximo reload exibe.
-      if (error?.status === 400) {
-        ui.section.hidden = true;
-        return;
-      }
-
       if (reset && !ui.lista.children.length) {
         const erro = document.createElement("p");
         erro.className = "historico-vazio";
-        erro.textContent = "Não foi possível carregar o histórico agora.";
+
+        if (error?.status === 400) {
+          erro.textContent = "O histórico ainda não está disponível no servidor publicado.";
+        } else {
+          erro.textContent = "Não foi possível carregar o histórico agora.";
+        }
+
         ui.lista.appendChild(erro);
       }
       ui.status.textContent = "";
