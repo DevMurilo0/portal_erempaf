@@ -45,7 +45,7 @@ let tabAtiva = "anotacoes";
 let dataAtual = new Date();
 let salvamentoEmAndamento = false;
 let senhaEdicaoTurma = ''; // fica só em memória; a senha real continua em /salas/{turma}.senha
-const CALENDARIO_BACKEND_URL = 'https://erempafbackend.netlify.app/.netlify/functions/calendario';
+const CALENDARIO_BACKEND_URL = 'https://erempaf-backend.vercel.app/api/calendario';
 
 // Fila de fotos aguardando descrição. As imagens voltaram a ser salvas em Base64 no Firestore.
 let _filaPendente = [];
