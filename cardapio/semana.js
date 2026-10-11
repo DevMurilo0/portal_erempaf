@@ -12,7 +12,7 @@ import '../shared/accessibility.js';
     let editando  = false;
     let diaISO    = null;
     let senhaEdicao = '';
-    const ENDPOINT_CARDAPIO = 'https://erempafbackend.netlify.app/.netlify/functions/cardapio';
+    const ENDPOINT_CARDAPIO = 'https://erempaf-backend.vercel.app/api/cardapio';
 
     /* ── Helpers de data ── */
     function isoStr(d) {
