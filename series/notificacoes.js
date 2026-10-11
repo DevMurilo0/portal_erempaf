@@ -23,11 +23,9 @@ const VAPID_KEY = "BEiUVJTzBgQOWKT0Oa9SCppUYu5AxGQq0ofDwVCgP2uPGunn3TQAGV5_z1txO
 
 /* ──────────────────────────────────────────────
    ÚNICO PONTO A MUDAR SE TROCAR DE HOSPEDAGEM
-   Esse endereço é do site "backend" separado
-   (só as funções), que continua na Netlify mesmo
-   que o site principal mude pra Hostinger ou
-   qualquer outro lugar. Troque aqui pela URL real
-   que aparecer depois do deploy do backend.
+   Esse endereço é do backend separado do Portal.
+   Se a hospedagem do backend mudar no futuro,
+   atualize esta URL para o novo endereço.
 ────────────────────────────────────────────── */
 const API_URL = "https://erempaf-backend.vercel.app/api";
 
