@@ -121,7 +121,7 @@ async function obterToken() {
     return tokenAtual;
 }
 
-async function atualizarInscricao(operation, token) {
+async function atualizarInscricao(operation, token, testarAparelho = false) {
     const user = auth.currentUser;
     if (!user) throw new Error("Faça login para gerenciar notificações.");
 
@@ -136,7 +136,8 @@ async function atualizarInscricao(operation, token) {
             operation,
             turma: SALA_ID,
             deviceId: obterDeviceId(),
-            token
+            token,
+            test: testarAparelho
         }),
         signal: AbortSignal.timeout(15000)
     });
@@ -168,7 +169,10 @@ async function ativar(btn) {
         }
 
         const token = await obterToken();
-        await atualizarInscricao("subscribe", token);
+        const resultado = await atualizarInscricao("subscribe", token, true);
+        if (resultado.testeEnviado !== true) {
+            throw new Error("O Firebase não confirmou o teste deste aparelho.");
+        }
 
         marcarLocal(true);
         toast("Notificações ativadas para esta turma.", "success");
@@ -187,7 +191,7 @@ async function desativar(btn) {
     try {
         if (!auth.currentUser) throw new Error("Faça login para gerenciar notificações.");
         const token = await obterToken();
-        await atualizarInscricao("unsubscribe", token);
+        await atualizarInscricao("unsubscribe", token, false);
 
         marcarLocal(false);
         toast("Notificações desativadas para esta turma.", "info");
@@ -221,7 +225,7 @@ async function sincronizarInscricaoExistente(btn) {
 
     try {
         const token = await obterToken();
-        await atualizarInscricao("subscribe", token);
+        await atualizarInscricao("subscribe", token, false);
         atualizarVisual(btn);
     } catch (error) {
         console.warn("Não foi possível sincronizar a inscrição de push.", error);
