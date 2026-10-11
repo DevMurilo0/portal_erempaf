@@ -1,0 +1,37 @@
+name: Test notificacoes
+
+on:
+  push:
+    paths:
+      - "series/notificacoes.js"
+      - "firebase-messaging-sw.js"
+      - ".github/workflows/test-notificacoes.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validar sintaxe do cliente push
+        run: |
+          cp series/notificacoes.js /tmp/notificacoes.mjs
+          node --check /tmp/notificacoes.mjs
+          node --check firebase-messaging-sw.js
+
+      - name: Validar arquitetura do fluxo
+        run: |
+          grep -q 'API_URL = "https://erempaf-backend.vercel.app/api"' series/notificacoes.js
+          grep -q 'onMessage' series/notificacoes.js
+          grep -q 'atualizarInscricao("subscribe"' series/notificacoes.js
+          grep -q 'atualizarInscricao("unsubscribe"' series/notificacoes.js
+          ! grep -q 'setDoc(' series/notificacoes.js
+          ! grep -q 'doc(window.db, "inscricoes"' series/notificacoes.js
