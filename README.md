@@ -8,8 +8,8 @@ O projeto reúne a apresentação institucional da escola e um portal por turma 
 
 - **Frontend:** Vercel
 - **URL atual:** https://portalerempaf.vercel.app/
-- **Backend:** Netlify Functions
-- **Backend atual:** https://erempafbackend.netlify.app/
+- **Backend:** Vercel Functions
+- **Backend atual:** https://erempaf-backend.vercel.app/
 - **Banco e autenticação:** Firebase
 - **Repositório do backend:** https://github.com/DevMurilo0/erempaf-backend
 
@@ -37,7 +37,7 @@ Navegador
    ├── Firebase Cloud Messaging
    │     └── notificações push
    │
-   └── Netlify Functions
+   └── Vercel Functions
          ├── calendário e edição
          ├── histórico de alterações
          ├── cardápio
@@ -98,7 +98,7 @@ A senha de edição não deve ser colocada em HTML, JavaScript público ou docum
 O salvamento do calendário passa pela função:
 
 ```text
-netlify/functions/calendario.js
+api/calendario.js
 ```
 
 no repositório do backend.
@@ -148,7 +148,7 @@ O projeto não depende do plano Blaze para esse recurso.
 
 O cardápio é público para leitura.
 
-A edição é protegida por uma senha tratada no backend. O frontend envia a tentativa de senha para a Netlify Function, que valida antes de gravar no Firestore.
+A edição é protegida por uma senha tratada no backend. O frontend envia a tentativa de senha para o backend, que valida antes de gravar no Firestore.
 
 ### Notificações
 
@@ -157,7 +157,7 @@ O portal utiliza:
 - Firebase Cloud Messaging
 - `firebase-messaging-sw.js`
 - registros de dispositivos no Firestore
-- função Netlify para disparo imediato
+- função do backend para disparo imediato
 
 As notificações dependem da permissão concedida pelo navegador/dispositivo.
 
@@ -168,8 +168,7 @@ O projeto atualmente possui integração ou dependência com:
 | Serviço | Uso |
 | --- | --- |
 | GitHub | código-fonte e histórico |
-| Vercel | hospedagem do frontend |
-| Netlify | hospedagem das funções de backend |
+| Vercel | hospedagem do frontend e do backend |
 | Firebase Authentication | login das turmas |
 | Cloud Firestore | dados do portal |
 | Firebase Cloud Messaging | notificações push |
@@ -245,7 +244,6 @@ Para continuidade do projeto dentro da escola, recomenda-se manter fora deste re
 3. **Infraestrutura**
    - GitHub
    - Vercel
-   - Netlify
    - Firebase
    - domínio, caso exista
    - Search Console, caso seja configurado
@@ -307,7 +305,7 @@ Existem também scripts para testes de navegador e regras locais. Eles são ferr
 ## Observações
 
 - O frontend de produção está na Vercel.
-- O backend é um projeto separado na Netlify.
+- O backend é um projeto separado na Vercel.
 - As Security Rules de produção não devem depender de segredo por obscuridade.
 - Credenciais administrativas devem permanecer fora do GitHub.
 - O portal foi desenvolvido de forma independente por **Murilo Gabriel**.
