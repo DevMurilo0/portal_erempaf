@@ -29,7 +29,7 @@ const VAPID_KEY = "BEiUVJTzBgQOWKT0Oa9SCppUYu5AxGQq0ofDwVCgP2uPGunn3TQAGV5_z1txO
    qualquer outro lugar. Troque aqui pela URL real
    que aparecer depois do deploy do backend.
 ────────────────────────────────────────────── */
-const API_URL = "https://erempafbackend.netlify.app/.netlify/functions";
+const API_URL = "https://erempaf-backend.vercel.app/api";
 
 let SALA_ID;
 let LOCAL_KEY;
